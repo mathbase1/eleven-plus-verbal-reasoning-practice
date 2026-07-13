@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -254,9 +255,15 @@
 
     .question-text {
       font-size: clamp(1.17rem, 2vw, 1.45rem);
-      line-height: 1.42;
+      line-height: 1.5;
       font-weight: 900;
-      margin: 0 0 12px;
+      margin: 0 0 18px;
+      max-width: 52rem;
+    }
+
+    .sentence-break {
+      display: block;
+      height: .7em;
     }
 
     .stimulus-wrap {
@@ -282,6 +289,9 @@
       max-height: 220px;
       margin: 0 auto;
     }
+
+    .alphabet-diagram { overflow-x: auto; }
+    .alphabet-diagram svg { min-width: 620px; max-width: none; }
 
     .code-table table, .review-table, .match-card table {
       border-collapse: collapse;
@@ -338,8 +348,12 @@
 
     button:hover:not(:disabled), button:focus-visible:not(:disabled) {
       transform: translateY(-2px);
-      outline: none;
       box-shadow: 0 13px 24px rgba(111,66,193,.26);
+    }
+
+    button:focus-visible, select:focus-visible {
+      outline: 3px solid #17314f;
+      outline-offset: 3px;
     }
 
     button:disabled { opacity: .55; cursor: not-allowed; }
@@ -475,13 +489,11 @@
     <header class="hero">
       <div>
         <h1>11+ Verbal Reasoning Practice Quest</h1>
-        <p class="subtitle">UK 11+ verbal reasoning practice for GL, CEM and independent-school style preparation: vocabulary, codes, analogies, sequences, word logic and deduction.</p>
       </div>
       <div class="mascot" aria-hidden="true">🧩</div>
     </header>
 
     <section class="toolbar" id="homeToolbar">
-      <div class="pill" id="bankSummary">Question bank loading…</div>
       <label class="pill">Questions per round
         <select id="sessionLength" aria-label="Questions per round">
           <option value="10">10</option>
@@ -560,7 +572,6 @@
     let familyCounter = 0;
 
     const els = {
-      bankSummary: document.getElementById("bankSummary"),
       topicGrid: document.getElementById("topicGrid"),
       homeScreen: document.getElementById("homeScreen"),
       quizScreen: document.getElementById("quizScreen"),
@@ -591,7 +602,7 @@
 
     const defaultProgress = () => {
       const topics = {};
-      ACTIVE_TOPICS.forEach(id => topics[id] = { level: 2, total: 0, correct: 0, streak: 0, bestStreak: 0 });
+      ACTIVE_TOPICS.forEach(id => topics[id] = { level: 2, total: 0, correct: 0, streak: 0, wrongStreak: 0, bestStreak: 0 });
       return { topics, lifetime: { total: 0, correct: 0 } };
     };
 
@@ -601,6 +612,8 @@
       currentQuestion: null,
       currentEntry: null,
       used: new Set(),
+      usedQuestions: new Set(),
+      topicCounts: {},
       index: 0,
       length: 15,
       score: 0,
@@ -638,6 +651,37 @@
     function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c])); }
     function tidy(s) { return String(s).trim().toLowerCase().replace(/\s+/g, " "); }
     function key(s) { return tidy(s).replace(/[.,;:!?()]/g, ""); }
+    function formatQuestionText(prompt) {
+      return escapeHtml(prompt).replace(/\.\s+(?=\S)/g, '.<span class="sentence-break" aria-hidden="true"></span>');
+    }
+    function fingerprintStimulus(stimulus) {
+      const html = String(stimulus || "").replace(/\s+/g, " ");
+      const wordTokens = Array.from(html.matchAll(/class="word-token">([^<]*)<\/span>/g), match => tidy(match[1])).sort();
+      if (wordTokens.length) return `words:${wordTokens.join("|")}`;
+      const tableRows = Array.from(html.matchAll(/<tr>(.*?)<\/tr>/g), rowMatch =>
+        Array.from(rowMatch[1].matchAll(/<t[dh]>(.*?)<\/t[dh]>/g), cellMatch => tidy(cellMatch[1].replace(/<[^>]*>/g, ""))).join(">")
+      );
+      if (tableRows.length) {
+        const header = tableRows.shift();
+        return `table:${header}:${tableRows.sort().join("|")}`;
+      }
+      return html.replace(/\s+/g, "");
+    }
+    function questionFingerprint(q) {
+      const clean = value => tidy(value == null ? "" : value);
+      const sorted = values => (values || []).map(clean).sort().join("|");
+      const pairLeft = (q.pairs || []).map(pair => pair.left);
+      const pairOptions = q.options || (q.pairs || []).map(pair => pair.right);
+      return [
+        clean(q.topic),
+        clean(q.prompt),
+        fingerprintStimulus(q.stimulus),
+        q.stimulus ? "" : clean(fmtAnswer(q.answer)),
+        sorted(q.tiles),
+        sorted(pairLeft),
+        sorted(pairOptions)
+      ].join("||");
+    }
     function unique(arr, keyFn = x => String(x).toLowerCase()) {
       const seen = new Set();
       const out = [];
@@ -680,7 +724,7 @@
     function svgAlphabet(highlights = []) {
       const w = 650, h = 110, cell = 24, startX = 16, y = 38;
       const hs = new Set(highlights.map(x => String(x).toUpperCase()));
-      let html = `<div class="diagram"><svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Alphabet strip">`;
+      let html = `<div class="diagram alphabet-diagram"><svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Alphabet strip">`;
       for (let i = 0; i < 26; i++) {
         const x = startX + i * cell;
         const ch = ALPHABET[i];
@@ -795,13 +839,13 @@
       {a:"shelf", b:"case", ans:"book", opts:["door","sea","rain"], d:2}, {a:"coat", b:"bow", ans:"rain", opts:["snow","star","cup"], d:3},
       {a:"man", b:"ball", ans:"snow", opts:["sun","foot","black"], d:3}, {a:"shell", b:"side", ans:"sea", opts:["fire","book","butter"], d:3},
       {a:"fish", b:"light", ans:"star", opts:["sun","door","hair"], d:4}, {a:"bag", b:"shake", ans:"hand", opts:["foot","rain","moon"], d:4},
-      {a:"work", b:"place", ans:"home", opts:["school","book","wheel"], d:5}, {a:"room", b:"time", ans:"bed", opts:["book","sea","cup"], d:5}
+      {a:"work", b:"land", ans:"home", opts:["school","book","wheel"], d:5}, {a:"room", b:"time", ans:"bed", opts:["book","sea","cup"], d:5}
     ];
     const SHARED_AFTER = [
       {a:"tooth", b:"paint", ans:"brush", opts:["coat","ball","case"], d:2}, {a:"rain", b:"winter", ans:"coat", opts:["cake","shell","fish"], d:2},
-      {a:"card", b:"sand", ans:"box", opts:["brush","work","light"], d:3}, {a:"moon", b:"torch", ans:"light", opts:["man","card","shell"], d:3},
+      {a:"letter", b:"sand", ans:"box", opts:["brush","work","light"], d:3}, {a:"moon", b:"torch", ans:"light", opts:["man","card","shell"], d:3},
       {a:"cup", b:"pan", ans:"cake", opts:["fly","work","ball"], d:3}, {a:"hair", b:"paper", ans:"clip", opts:["case","chair","fish"], d:4},
-      {a:"door", b:"key", ans:"hole", opts:["bow","room","fly"], d:4}, {a:"fire", b:"home", ans:"work", opts:["flower","side","board"], d:4},
+      {a:"button", b:"key", ans:"hole", opts:["bow","room","fly"], d:4}, {a:"fire", b:"home", ans:"work", opts:["flower","side","board"], d:4},
       {a:"note", b:"exercise", ans:"book", opts:["case","room","step"], d:5}, {a:"water", b:"paint", ans:"colour", opts:["chair","cake","board"], d:5}
     ];
 
@@ -1584,10 +1628,10 @@
         const items = [
           {phrase:"The maN GOt ready.", ans:"MANGO", opts:["MAGIC","MOUNT","MINOR"]},
           {phrase:"The teaM ATE early.", ans:"MATE", opts:["MEAT","TEAM","TAME"]},
-          {phrase:"The pupiL IONised the word in science club.", ans:"LION", opts:["LINE","LOIN","LIME"]},
+          {phrase:"The family arrived in ItaLI ON Monday.", ans:"LION", opts:["LINE","LOIN","LIME"]},
           {phrase:"The maP INK smudged on the desk.", ans:"PINK", opts:["PINE","PARK","PICK"]},
-          {phrase:"We saW IN Doorways after lunch.", ans:"WIND", opts:["WIDE","WOOD","WORD"]},
-          {phrase:"A calm swan glideS LOWly across the lake.", ans:"SLOW", opts:["SNOW","SHOW","SLOT"]}
+          {phrase:"The object we saW INDoors was unusual.", ans:"WIND", opts:["WIDE","WOOD","WORD"]},
+          {phrase:"The bird glideS LOW over the lake.", ans:"SLOW", opts:["SNOW","SHOW","SLOT"]}
         ].slice(0, 2 + d);
         const item = pick(items);
         return qBase("wordplay", "Hidden word across words", d, "mc", "Which word is hidden across two neighbouring words in the sentence?", item.ans.toLowerCase(), {
@@ -1614,7 +1658,7 @@
 
       addFamily("wordplay", "Add one letter", d => {
         const items = [
-          ["at", "cat", "c"], ["rain", "train", "t"], ["light", "flight", "f"], ["ear", "bear", "b"], ["line", "cline", "c"],
+          ["at", "cat", "c"], ["rain", "train", "t"], ["light", "flight", "f"], ["ear", "bear", "b"], ["late", "plate", "p"],
           ["row", "grow", "g"], ["able", "table", "t"], ["ring", "bring", "b"], ["low", "slow", "s"], ["ink", "pink", "p"]
         ].slice(0, 3 + d*2);
         const [base, newWord, ans] = pick(items);
@@ -2101,7 +2145,7 @@
         const sets = [
           { small: "ant", correct: ["plant", "giant"], distractors: ["uncle", "river", "pencil"] },
           { small: "ear", correct: ["earth", "learn"], distractors: ["stone", "wrist", "cloud"] },
-          { small: "owl", correct: ["bowling", "towel"], distractors: ["honest", "apple", "paper"] },
+          { small: "owl", correct: ["bowling", "howl"], distractors: ["honest", "apple", "paper"] },
           { small: "hen", correct: ["when", "kitchen"], distractors: ["garden", "window", "school"] },
           { small: "ink", correct: ["think", "blink"], distractors: ["paint", "write", "paper"] }
         ].slice(0, 2 + d);
@@ -2508,7 +2552,7 @@
         const items = [
           ["All blicks are green. This object is a blick.", "It must be green.", ["It cannot be green.", "It must be red.", "It is not a blick."], 1],
           ["No lamps are animals. A cat is an animal.", "A cat is not a lamp.", ["A cat is a lamp.", "All animals are lamps.", "No cats are animals."], 2],
-          ["All medals are round. Some round things are coins.", "Some round things may be medals.", ["All coins are medals.", "No medals are coins.", "All round things are medals."], 3],
+          ["All medals are round. Some round things are coins.", "Some coins are round.", ["All coins are medals.", "No medals are coins.", "All round things are medals."], 3],
           ["Every glip is a plon. No plons are red.", "No glips are red.", ["All red things are glips.", "Some glips are red.", "No glips are plons."], 4],
           ["Some nabs are wibs. All wibs are silver.", "Some nabs are silver.", ["All nabs are silver.", "No nabs are wibs.", "All silver things are nabs."], 5]
         ].filter(x => x[3] <= d + 1);
@@ -2900,7 +2944,7 @@
 
       addFamily("classification", "Additional letter feature odd one out", d => {
         const items = [
-          [["MOM", "DAD", "EVE"], "BOY", "palindromes", 1], [["BEE", "SEE", "TREE"], "BIRD", "double E sound/spelling", 2],
+          [["MUM", "DAD", "EVE"], "BOY", "palindromes", 1], [["BEE", "SEE", "TREE"], "BIRD", "double E sound/spelling", 2],
           [["STOP", "SPOT", "POST"], "PAST", "same letters", 2], [["CART", "TRAC", "ACTR"], "CARE", "same four letters", 3],
           [["LEVEL", "RADAR", "REFER"], "RIVER", "palindromes", 4], [["SILENT", "LISTEN", "ENLIST"], "TINGLE", "anagrams", 4],
           [["ABBA", "DEED", "NOON"], "MOON", "palindromes", 5]
@@ -3046,7 +3090,7 @@
       }, 10);
 
       addFamily("codes", "Additional alphabet value sums", d => {
-        const words = ["ACE", "BAD", "BED", "CAB", "FACE", "CAFE", "BAG", "HAT", "MATH", "CODE"].slice(0, 4 + d);
+        const words = ["ACE", "BAD", "BED", "CAB", "FACE", "CAFE", "BAG", "HAT", "MATHS", "CODE"].slice(0, 4 + d);
         const word = pick(words);
         const ans = alphaSum(word);
         return qBase("codes", "Additional alphabet value sums", d, "mc", `If A = 1, B = 2, C = 3 and so on, what is the value of ${word}?`, ans, {
@@ -3252,8 +3296,8 @@
 
       addFamily("wordplay", "Additional remove one letter", d => {
         const items = [
-          ["PLANE", "PLAN", "E", 1], ["STONE", "TONE", "S", 1], ["CART", "CAT", "R", 2], ["BRIDE", "BIRD", "E", 3],
-          ["SPARE", "SPEAR", "R", 3], ["TRAIN", "RAIN", "T", 4], ["CRANE", "CANE", "R", 4], ["GLOBE", "LOBE", "G", 5]
+          ["PLANE", "PLAN", "E", 1], ["STONE", "TONE", "S", 1], ["CART", "CAT", "R", 2], ["BREAD", "BEAD", "R", 3],
+          ["SPEAR", "PEAR", "S", 3], ["TRAIN", "RAIN", "T", 4], ["CRANE", "CANE", "R", 4], ["GLOBE", "LOBE", "G", 5]
         ].filter(x => x[3] <= d + 1);
         const item = pick(items);
         return qBase("wordplay", "Additional remove one letter", d, "mc", `Remove one letter from ${item[0]} to make ${item[1]}. Which letter is removed?`, item[2], {
@@ -3983,7 +4027,7 @@
 
       addFamily("wordplay", "Final hidden word across words", d => {
         const items = [
-          ["rain", "ouR A INk"], ["star", "laST ARrived"], ["pear", "toP EARly"], ["lion", "penciL I ONce"], ["sand", "waS ANDy"], ["read", "shoRE ADvice"], ["mile", "saMI LEft"]
+          ["rain", "cameRA INside"], ["star", "laST ARrived"], ["pear", "toP EARly"], ["lion", "ItaLI ON Monday"], ["sand", "waS ANDy"], ["read", "shoRE ADvice"], ["mile", "saMI LEft"]
         ].slice(0, 3 + d);
         const [answer, phrase] = pick(items);
         return qBase("wordplay", "Final hidden word across words", d, "mc", `Which word is hidden across the words: ${phrase}?`, answer, {
@@ -4120,7 +4164,11 @@
 
     function startRound(topic) {
       state.topic = topic;
+      state.currentEntry = null;
+      state.currentQuestion = null;
       state.used = new Set();
+      state.usedQuestions = new Set();
+      state.topicCounts = {};
       state.index = 0;
       state.length = Number(els.sessionLength.value || 15);
       state.score = 0;
@@ -4133,12 +4181,22 @@
       nextQuestion();
     }
 
-    function pickEntry() {
-      const chosenTopics = state.topic === "mixed" ? ACTIVE_TOPICS : [state.topic];
-      const baseLevel = state.topic === "mixed" ? averageLevel() : topicLevel(state.topic);
-      let pool = BANK.filter(e => chosenTopics.includes(e.topic) && Math.abs(e.difficulty - baseLevel) <= 1 && !state.used.has(e.id));
-      if (!pool.length) pool = BANK.filter(e => chosenTopics.includes(e.topic) && !state.used.has(e.id));
-      if (!pool.length) { state.used.clear(); pool = BANK.filter(e => chosenTopics.includes(e.topic)); }
+    function pickAdaptiveTopic() {
+      if (state.topic !== "mixed") return state.topic;
+      const fewest = Math.min(...ACTIVE_TOPICS.map(topic => state.topicCounts[topic] || 0));
+      let candidates = ACTIVE_TOPICS.filter(topic => (state.topicCounts[topic] || 0) === fewest);
+      if (state.currentEntry && candidates.length > 1) {
+        candidates = candidates.filter(topic => topic !== state.currentEntry.topic);
+      }
+      return pick(candidates);
+    }
+
+    function pickEntry(chosenTopic) {
+      const baseLevel = topicLevel(chosenTopic);
+      let pool = BANK.filter(e => e.topic === chosenTopic && e.difficulty === baseLevel && !state.used.has(e.id));
+      if (!pool.length) pool = BANK.filter(e => e.topic === chosenTopic && Math.abs(e.difficulty - baseLevel) <= 1 && !state.used.has(e.id));
+      if (!pool.length) pool = BANK.filter(e => e.topic === chosenTopic && !state.used.has(e.id));
+      if (!pool.length) throw new Error(`No unused questions remain for ${chosenTopic}.`);
       const entry = pick(pool);
       state.used.add(entry.id);
       return entry;
@@ -4146,10 +4204,24 @@
 
     function nextQuestion() {
       if (state.index >= state.length) return showResults();
-      state.currentEntry = pickEntry();
-      const level = state.topic === "mixed" ? topicLevel(state.currentEntry.topic) : topicLevel(state.topic);
-      const diff = clamp(Math.round((state.currentEntry.difficulty + level) / 2), 1, 5);
-      state.currentQuestion = state.currentEntry.gen(diff);
+      const chosenTopic = pickAdaptiveTopic();
+      let selected = null;
+      for (let attempt = 0; attempt < 200; attempt++) {
+        const entry = pickEntry(chosenTopic);
+        const level = topicLevel(entry.topic);
+        const diff = clamp(Math.round((entry.difficulty + level) / 2), 1, 5);
+        const question = entry.gen(diff);
+        const fingerprint = questionFingerprint(question);
+        if (!state.usedQuestions.has(fingerprint)) {
+          selected = { entry, question, fingerprint };
+          break;
+        }
+      }
+      if (!selected) throw new Error(`Unable to create a new question for ${chosenTopic}.`);
+      state.currentEntry = selected.entry;
+      state.currentQuestion = selected.question;
+      state.usedQuestions.add(selected.fingerprint);
+      state.topicCounts[chosenTopic] = (state.topicCounts[chosenTopic] || 0) + 1;
       state.answered = false;
       state.multiSelected = new Set();
       state.orderSelected = [];
@@ -4165,7 +4237,7 @@
       els.levelText.textContent = `Level ${topicLevel(q.topic)}`;
       els.progressFill.style.width = `${(state.index / state.length) * 100}%`;
       els.tagRow.innerHTML = `<span class="tag">${escapeHtml(topicName)}</span><span class="tag">${escapeHtml(q.title)}</span><span class="tag">Difficulty ${q.difficulty}/5</span>`;
-      els.questionText.innerHTML = escapeHtml(q.prompt);
+      els.questionText.innerHTML = formatQuestionText(q.prompt);
       els.stimulusWrap.innerHTML = q.stimulus || "";
       els.feedbackPanel.className = "feedback-panel hidden";
       els.feedbackPanel.innerHTML = "";
@@ -4368,12 +4440,14 @@
       if (ok) {
         p.correct += 1;
         progress.lifetime.correct += 1;
+        p.wrongStreak = 0;
         p.streak += 1;
         p.bestStreak = Math.max(p.bestStreak, p.streak);
         if (p.streak >= 2) { p.level = clamp(p.level + 1, 1, 5); p.streak = 0; }
       } else {
         p.streak = 0;
-        p.level = clamp(p.level - 1, 1, 5);
+        p.wrongStreak = (p.wrongStreak || 0) + 1;
+        if (p.wrongStreak >= 2) { p.level = clamp(p.level - 1, 1, 5); p.wrongStreak = 0; }
       }
     }
 
@@ -4404,11 +4478,6 @@
       els.finalMessage.textContent = pct >= 85 ? "Excellent verbal reasoning!" : pct >= 65 ? "Good progress — keep practising the tricky topics." : "Keep going — review the feedback and try another round.";
       const rows = state.history.map((h, i) => `<tr><td>${i+1}</td><td>${escapeHtml(TOPICS[h.topic].name)}</td><td>${escapeHtml(h.title)}</td><td>${h.correct ? "✅" : "❌"}</td><td>${escapeHtml(h.given)}</td><td>${escapeHtml(h.answer)}</td><td>${escapeHtml(h.explanation)}</td></tr>`).join("");
       els.reviewWrap.innerHTML = `<table class="review-table"><thead><tr><th>#</th><th>Topic</th><th>Type</th><th>Result</th><th>Your answer</th><th>Correct answer</th><th>Feedback</th></tr></thead><tbody>${rows}</tbody></table>`;
-      renderHomeCardsOnly();
-    }
-
-    function renderHomeCardsOnly() {
-      els.bankSummary.textContent = `${BANK.length}+ dynamic verbal reasoning variants loaded`;
     }
 
     els.hintBtn.addEventListener("click", showHint);
@@ -4440,7 +4509,6 @@
     }
     BANK.push(...shuffle(additionalVRKept).slice(0, 500));
     extendBankWithFinalVR500();
-    els.bankSummary.textContent = `${BANK.length}+ dynamic verbal reasoning variants loaded`;
     renderHome();
   </script>
 </body>
