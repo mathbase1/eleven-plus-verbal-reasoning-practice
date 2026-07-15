@@ -1,5 +1,4 @@
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -66,6 +65,31 @@
       line-height: 1.45;
     }
 
+    .intro-panel {
+      margin: 18px 0 0;
+      padding: 16px 18px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.9);
+      color: var(--muted);
+      line-height: 1.5;
+      box-shadow: 0 8px 22px rgba(23,49,79,.08);
+    }
+
+    .intro-panel strong { color: var(--ink); }
+
+    .sr-only {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
     .mascot {
       width: 110px;
       height: 110px;
@@ -118,6 +142,8 @@
 
     .topic-card {
       background: var(--panel);
+      color: var(--ink);
+      text-align: left;
       border: 1px solid var(--line);
       border-radius: var(--radius);
       padding: 19px;
@@ -134,7 +160,6 @@
       transform: translateY(-4px);
       box-shadow: var(--shadow);
       border-color: rgba(111,66,193,.45);
-      outline: none;
     }
 
     .topic-icon {
@@ -148,12 +173,20 @@
       margin-bottom: 10px;
     }
 
-    .topic-card h2 {
-      margin: 0 0 7px;
-      font-size: 1.2rem;
+    .topic-main,
+    .topic-name,
+    .topic-blurb {
+      display: block;
     }
 
-    .topic-card p {
+    .topic-name {
+      margin: 0 0 7px;
+      color: var(--ink);
+      font-size: 1.2rem;
+      font-weight: 900;
+    }
+
+    .topic-blurb {
       margin: 0;
       color: var(--muted);
       line-height: 1.35;
@@ -167,22 +200,6 @@
       color: var(--muted);
       font-size: .9rem;
     }
-
-    .level-dots {
-      display: inline-flex;
-      gap: 4px;
-      vertical-align: middle;
-    }
-
-    .dot {
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: #d3deef;
-      display: inline-block;
-    }
-
-    .dot.on { background: var(--accent); }
 
     .quiz-shell { display: grid; gap: 16px; }
 
@@ -377,10 +394,13 @@
       background: #fff0f0;
     }
 
-    .multi-btn.selected, .tile-btn.selected {
+    .choice-btn.selected, .multi-btn.selected, .tile-btn.selected {
       border-color: rgba(111,66,193,.75);
       background: #f3ecff;
     }
+
+    .answer-slot.correct { border-color: var(--good); background: #edf9f0; }
+    .answer-slot.wrong { border-color: var(--bad); background: #fff0f0; }
 
     .order-board {
       display: grid;
@@ -412,6 +432,7 @@
       display: grid;
       place-items: center;
       background: white;
+      color: var(--ink);
       font-weight: 900;
     }
 
@@ -456,6 +477,13 @@
     .feedback-panel span { display: block; margin-top: 4px; }
     .small-note { margin-top: 6px; text-align: center; color: var(--muted); font-size: .92rem; }
 
+    .result-detail {
+      max-width: 48rem;
+      margin: 0 auto 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
     .results-panel {
       padding: clamp(22px, 4vw, 36px);
       text-align: center;
@@ -482,6 +510,15 @@
       .app { width: min(100% - 18px, 1160px); padding-top: 12px; }
       .choices, .multi-grid { grid-template-columns: 1fr; }
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -489,9 +526,14 @@
     <header class="hero">
       <div>
         <h1>11+ Verbal Reasoning Practice Quest</h1>
+        <p class="subtitle">Choose a topic, work at your own pace and learn from each answer.</p>
       </div>
       <div class="mascot" aria-hidden="true">🧩</div>
     </header>
+
+    <div class="intro-panel" id="practiceIntro">
+      <strong>How practice works:</strong> the challenge adjusts gradually from independent answers. Hints are available, but a correct answer after using a hint is recorded as assisted and earns half points. Scores show practice performance only. Progress is stored on this browser.<span id="storageStatus" role="status" aria-live="polite"></span>
+    </div>
 
     <section class="toolbar" id="homeToolbar">
       <label class="pill">Questions per round
@@ -517,15 +559,15 @@
             <div class="score-strip">
               <span id="scoreText">Score 0</span>
               <span id="questionCountText">Question 1</span>
-              <span id="levelText">Level 2</span>
+              <span id="levelText">Adaptive practice</span>
             </div>
           </div>
-          <div class="meter" aria-label="Round progress"><div class="meter-fill" id="progressFill"></div></div>
+          <div class="meter" id="progressMeter" role="progressbar" aria-label="Round progress" aria-valuemin="0" aria-valuemax="15" aria-valuenow="0"><div class="meter-fill" id="progressFill"></div></div>
         </div>
 
-        <article class="question-panel" id="questionPanel">
+        <article class="question-panel" id="questionPanel" tabindex="-1" aria-labelledby="questionText">
           <div class="tag-row" id="tagRow"></div>
-          <p class="question-text" id="questionText"></p>
+          <h2 class="question-text" id="questionText"></h2>
           <div class="stimulus-wrap" id="stimulusWrap"></div>
           <div id="interactionWrap"></div>
           <div class="actions">
@@ -540,13 +582,15 @@
       </div>
     </section>
 
-    <section class="screen hidden" id="resultsScreen">
+    <section class="screen hidden" id="resultsScreen" tabindex="-1" aria-labelledby="resultsHeading">
       <div class="results-panel">
-        <h2>Round complete!</h2>
+        <h2 id="resultsHeading">Round complete!</h2>
         <div class="big-score" id="finalScore">0/0</div>
         <p id="finalMessage"></p>
+        <p class="result-detail" id="resultDetail"></p>
         <div class="actions" style="justify-content:center">
           <button id="playAgainBtn" type="button">Play this topic again</button>
+          <button class="gold hidden" id="retryMissedBtn" type="button">Practise missed questions</button>
           <button class="secondary" id="homeBtn" type="button">Choose another topic</button>
         </div>
         <div class="review-wrap" id="reviewWrap"></div>
@@ -564,7 +608,7 @@
       sequences: { name: "Letter & Number Sequences", icon: "➡️", blurb: "Alphabet patterns, alternating sequences, word order, numbered letters and missing terms." },
       wordplay: { name: "Hidden Words & Anagrams", icon: "🔎", blurb: "Anagrams, hidden words, letter removal, alphabet order and word construction." },
       logic: { name: "Logic & Deduction", icon: "♟️", blurb: "Ordering clues, statements, matching puzzles, following instructions and conclusions." },
-      mixed: { name: "Mixed Practice", icon: "⭐", blurb: "A shuffled round across the full 11+ verbal reasoning practice bank." }
+      mixed: { name: "Mixed Practice", icon: "⭐", blurb: "A balanced round across the verbal reasoning skills included in this practice activity." }
     };
 
     const ACTIVE_TOPICS = Object.keys(TOPICS).filter(t => t !== "mixed");
@@ -577,13 +621,17 @@
       quizScreen: document.getElementById("quizScreen"),
       resultsScreen: document.getElementById("resultsScreen"),
       homeToolbar: document.getElementById("homeToolbar"),
+      practiceIntro: document.getElementById("practiceIntro"),
+      storageStatus: document.getElementById("storageStatus"),
       sessionLength: document.getElementById("sessionLength"),
       resetProgressBtn: document.getElementById("resetProgressBtn"),
       quizTitle: document.getElementById("quizTitle"),
       scoreText: document.getElementById("scoreText"),
       questionCountText: document.getElementById("questionCountText"),
       levelText: document.getElementById("levelText"),
+      progressMeter: document.getElementById("progressMeter"),
       progressFill: document.getElementById("progressFill"),
+      questionPanel: document.getElementById("questionPanel"),
       tagRow: document.getElementById("tagRow"),
       questionText: document.getElementById("questionText"),
       stimulusWrap: document.getElementById("stimulusWrap"),
@@ -595,17 +643,33 @@
       feedbackPanel: document.getElementById("feedbackPanel"),
       finalScore: document.getElementById("finalScore"),
       finalMessage: document.getElementById("finalMessage"),
+      resultDetail: document.getElementById("resultDetail"),
       playAgainBtn: document.getElementById("playAgainBtn"),
+      retryMissedBtn: document.getElementById("retryMissedBtn"),
       homeBtn: document.getElementById("homeBtn"),
       reviewWrap: document.getElementById("reviewWrap")
     };
 
     const defaultProgress = () => {
       const topics = {};
-      ACTIVE_TOPICS.forEach(id => topics[id] = { level: 2, total: 0, correct: 0, streak: 0, wrongStreak: 0, bestStreak: 0 });
-      return { topics, lifetime: { total: 0, correct: 0 } };
+      ACTIVE_TOPICS.forEach(id => topics[id] = {
+        level: 2,
+        total: 0,
+        correct: 0,
+        assisted: 0,
+        pointsEarned: 0,
+        pointsPossible: 0,
+        independentEvidence: []
+      });
+      return {
+        topics,
+        lifetime: { total: 0, correct: 0, assisted: 0, pointsEarned: 0, pointsPossible: 0 },
+        recentQuestions: [],
+        recentFamilies: []
+      };
     };
 
+    let storageAvailable = true;
     let progress = loadProgress();
     let state = {
       topic: null,
@@ -620,23 +684,47 @@
       answered: false,
       history: [],
       multiSelected: new Set(),
-      orderSelected: []
+      orderSelected: [],
+      mcSelected: null,
+      hintUsed: false,
+      pointsEarned: 0,
+      pointsPossible: 0,
+      assistedCount: 0,
+      usedFamilies: new Set(),
+      retryQuestions: null,
+      retryIndex: 0
     };
 
     function loadProgress() {
       try {
-        const raw = localStorage.getItem("elevenPlusVRProgressV1");
+        const raw = localStorage.getItem("elevenPlusVRProgressV2") || localStorage.getItem("elevenPlusVRProgressV1");
         const parsed = raw ? JSON.parse(raw) : defaultProgress();
         const base = defaultProgress();
-        ACTIVE_TOPICS.forEach(id => parsed.topics[id] = Object.assign(base.topics[id], parsed.topics[id] || {}));
+        parsed.topics = parsed.topics || {};
+        ACTIVE_TOPICS.forEach(id => {
+          parsed.topics[id] = Object.assign({}, base.topics[id], parsed.topics[id] || {});
+          if (!Array.isArray(parsed.topics[id].independentEvidence)) parsed.topics[id].independentEvidence = [];
+        });
         parsed.lifetime = Object.assign(base.lifetime, parsed.lifetime || {});
+        parsed.recentQuestions = Array.isArray(parsed.recentQuestions) ? parsed.recentQuestions.slice(-400) : [];
+        parsed.recentFamilies = Array.isArray(parsed.recentFamilies) ? parsed.recentFamilies.slice(-96) : [];
         return parsed;
       } catch (e) {
+        storageAvailable = false;
         return defaultProgress();
       }
     }
 
-    function saveProgress() { localStorage.setItem("elevenPlusVRProgressV1", JSON.stringify(progress)); }
+    function saveProgress() {
+      try {
+        localStorage.setItem("elevenPlusVRProgressV2", JSON.stringify(progress));
+        storageAvailable = true;
+        return true;
+      } catch (error) {
+        storageAvailable = false;
+        return false;
+      }
+    }
     function clamp(n, min, max) { return Math.max(min, Math.min(max, n)); }
     function rint(min, max) { return Math.floor(Math.random() * (max - min + 1)) + min; }
     function pick(arr) { return arr[rint(0, arr.length - 1)]; }
@@ -651,6 +739,16 @@
     function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c])); }
     function tidy(s) { return String(s).trim().toLowerCase().replace(/\s+/g, " "); }
     function key(s) { return tidy(s).replace(/[.,;:!?()]/g, ""); }
+    function articleFor(word) { return /^[aeiou]/i.test(String(word).trim()) ? "an" : "a"; }
+    function leadingArticleFor(word) {
+      const article = articleFor(word);
+      return article.charAt(0).toUpperCase() + article.slice(1);
+    }
+    function displayPoints(value) { return Number.isInteger(value) ? String(value) : Number(value).toFixed(1); }
+    function publicQuestionTitle(title) {
+      const clean = String(title || "").replace(/^(?:Additional|Further|Final)\s+/i, "").trim();
+      return clean ? clean.charAt(0).toUpperCase() + clean.slice(1) : "Verbal reasoning";
+    }
     function formatQuestionText(prompt) {
       return escapeHtml(prompt).replace(/\.\s+(?=\S)/g, '.<span class="sentence-break" aria-hidden="true"></span>');
     }
@@ -694,14 +792,8 @@
       return String(v);
     }
     function makeTextChoices(answer, distractors, min = 4) {
-      const fillers = ["cannot tell", "none of these", "both are possible", "all of these", "same meaning", "opposite meaning"];
       const items = unique([answer].concat(distractors || []), key);
-      let guard = 0;
-      while (items.length < min && guard < fillers.length) {
-        if (key(fillers[guard]) !== key(answer)) items.push(fillers[guard]);
-        guard += 1;
-      }
-      return shuffle(unique(items, key).slice(0, Math.max(min, 4))).map(v => ({ value: v, label: String(v) }));
+      return shuffle(items.slice(0, Math.max(min, 4))).map(v => ({ value: v, label: String(v) }));
     }
     function makeLetterChoices(answer) {
       const letters = [answer];
@@ -710,10 +802,6 @@
       return shuffle(unique(letters).slice(0, 4)).map(v => ({ value: v, label: v }));
     }
     function topicLevel(topic) { return progress.topics[topic]?.level || 2; }
-    function averageLevel() { return Math.round(ACTIVE_TOPICS.reduce((s,t)=>s+topicLevel(t),0) / ACTIVE_TOPICS.length); }
-    function dotLevel(level) {
-      return `<span class="level-dots" aria-label="Level ${level} out of 5">${[1,2,3,4,5].map(n => `<span class="dot ${n <= level ? "on" : ""}"></span>`).join("")}</span>`;
-    }
     const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     function pos(ch) { return ALPHABET.indexOf(String(ch).toUpperCase()) + 1; }
     function letter(n) { return ALPHABET[((n - 1) % 26 + 26) % 26]; }
@@ -742,6 +830,49 @@
     function sequenceStrip(items) { return `<div class="sequence-strip">${items.map(w => `<span class="seq-token">${escapeHtml(w)}</span>`).join("<span>→</span>")}</div>`; }
     function qBase(topic, title, diff, kind, prompt, answer, opts = {}) {
       return Object.assign({ topic, title, difficulty: diff, kind, prompt, answer, hint: "Look for the pattern or relationship before choosing.", explanation: "Work through the clue carefully and compare each option." }, opts);
+    }
+    function linkedWordBankValues(q, choices) {
+      const shown = Array.from(String(q.stimulus || "").matchAll(/class="word-token">([^<]*)<\/span>/g), match => tidy(match[1]));
+      const choiceKeys = new Set((choices || []).map(choice => key(choice.value)));
+      return { shown, matched: shown.filter(value => choiceKeys.has(key(value))) };
+    }
+    function syncLinkedWordBank(q) {
+      const html = String(q.stimulus || "");
+      const bank = html.match(/<div class="word-bank">[\s\S]*?<\/div>/);
+      if (!bank || !q.choices) return;
+      const { shown, matched } = linkedWordBankValues(q, q.choices);
+      if (matched.length >= 2 && matched.length < shown.length) {
+        q.stimulus = html.replace(bank[0], wordBank(matched));
+      }
+    }
+    function prepareQuestion(question, difficulty) {
+      const q = Object.assign({}, question, { difficulty: clamp(difficulty, 1, 5) });
+      if (q.kind === "mc") {
+        const all = unique(q.choices || [], choice => key(choice.value));
+        const correct = all.find(choice => key(choice.value) === key(q.answer));
+        if (!correct) throw new Error(`The answer is missing from the choices for ${q.title}.`);
+        const distractors = shuffle(all.filter(choice => choice !== correct));
+        const linkedWordBank = linkedWordBankValues(q, all).matched.length >= 2;
+        const wanted = linkedWordBank ? all.length : Math.min(all.length, difficulty <= 2 ? 3 : 4);
+        q.choices = shuffle([correct].concat(distractors.slice(0, Math.max(1, wanted - 1))));
+      }
+      if (q.kind === "multi") {
+        const all = unique(q.choices || [], choice => key(choice.value));
+        const answers = new Set(q.answer.map(key));
+        const correct = all.filter(choice => answers.has(key(choice.value)));
+        const distractors = shuffle(all.filter(choice => !answers.has(key(choice.value))));
+        const linkedWordBank = linkedWordBankValues(q, all).matched.length >= 2;
+        const wanted = linkedWordBank ? all.length : Math.min(all.length, q.answer.length + (difficulty <= 2 ? 2 : 3));
+        q.choices = shuffle(correct.concat(distractors.slice(0, Math.max(1, wanted - correct.length))));
+      }
+      if (q.kind === "match") {
+        const pairLimit = difficulty <= 2 ? Math.min(3, q.pairs.length) : q.pairs.length;
+        q.pairs = q.pairs.slice(0, pairLimit);
+        q.answer = Object.fromEntries(q.pairs.map(pair => [pair.left, q.answer[pair.left]]));
+        q.options = unique(q.options || q.pairs.map(pair => pair.right), key);
+      }
+      syncLinkedWordBank(q);
+      return q;
     }
     function addFamily(topic, title, gen, count = 10) {
       familyCounter += 1;
@@ -824,7 +955,7 @@
       {p:"The class was all ears when the visitor arrived.", a:"listening carefully", opts:["talking loudly","running quickly","feeling sleepy"], d:3},
       {p:"It was time to turn over a new leaf.", a:"make a fresh start", opts:["read a book","tidy the garden","fold paper"], d:3},
       {p:"Eva decided to get straight to the point.", a:"speak directly", opts:["draw a shape","walk quickly","hide her idea"], d:4},
-      {p:"The puzzle was tricky, but Ben did not throw in the towel.", a:"give up", opts:["wash his hands","run away","ask a question"], d:4},
+      {p:"The puzzle was tricky, so Ben decided to throw in the towel.", a:"give up", opts:["wash his hands","run away","ask a question"], d:4},
       {p:"The answer was on the tip of my tongue.", a:"almost remembered", opts:["very spicy","spoken loudly","written clearly"], d:5},
       {p:"They were in the same boat before the test.", a:"in the same situation", opts:["travelling by river","arguing together","waiting outside"], d:5}
     ];
@@ -834,6 +965,47 @@
       ["sea", "shell"], ["moon", "light"], ["black", "bird"], ["cup", "cake"], ["fire", "work"], ["pan", "cake"],
       ["hair", "cut"], ["wheel", "chair"], ["rain", "bow"], ["note", "book"], ["key", "board"], ["post", "card"]
     ];
+    const COMPOUND_MEANINGS = {
+      sunflower: "a tall plant with a large yellow flower",
+      toothbrush: "an object used for cleaning teeth",
+      raincoat: "a coat worn in wet weather",
+      starfish: "a sea creature shaped like a star",
+      football: "a ball game played mainly with the feet",
+      homework: "school work completed away from lessons",
+      bookcase: "furniture used for storing books",
+      snowman: "a figure made from snow",
+      bedroom: "a room used for sleeping",
+      doorway: "an opening through which a door is entered",
+      dragonfly: "a long-bodied flying insect",
+      butterfly: "an insect with broad colourful wings",
+      seashell: "the hard outer covering of a sea creature",
+      moonlight: "light coming from the moon",
+      blackbird: "a common dark-feathered bird",
+      cupcake: "a small cake baked in a paper case",
+      firework: "a device that produces coloured light or noise",
+      pancake: "a thin flat cake cooked in a pan",
+      haircut: "the act or style of cutting hair",
+      wheelchair: "a chair with wheels used for mobility",
+      rainbow: "an arc of colours seen after rain",
+      notebook: "a book used for writing notes",
+      keyboard: "a set of keys used for typing",
+      postcard: "a card sent through the post without an envelope"
+    };
+    Object.assign(COMPOUND_MEANINGS, {
+      toothpaste: "a substance used for cleaning teeth",
+      doorbell: "a bell used to signal at a door",
+      cupboard: "a cabinet used for storing things",
+      backpack: "a bag carried on the back",
+      classroom: "a room where lessons are taught",
+      waterfall: "water dropping over a steep edge"
+    });
+    const SAFE_COMPOUND_MATCH_SETS = [
+      [["tooth", "brush"], ["rain", "coat"], ["book", "case"], ["snow", "man"]],
+      [["key", "board"], ["moon", "light"], ["sea", "shell"], ["foot", "ball"]],
+      [["sun", "flower"], ["post", "card"], ["bed", "room"], ["hair", "cut"]],
+      [["note", "book"], ["wheel", "chair"], ["fire", "work"], ["rain", "bow"]]
+    ];
+    const SAFE_NON_COMPOUNDS = ["rainpencil", "bookorange", "toothriver", "moonbanana", "starwindow", "keygarden", "snowpencil", "doorbanana"];
     const SHARED_BEFORE = [
       {a:"ball", b:"step", ans:"foot", opts:["hand","rain","book"], d:2}, {a:"flower", b:"light", ans:"sun", opts:["moon","star","snow"], d:2},
       {a:"shelf", b:"case", ans:"book", opts:["door","sea","rain"], d:2}, {a:"coat", b:"bow", ans:"rain", opts:["snow","star","cup"], d:3},
@@ -842,11 +1014,11 @@
       {a:"work", b:"land", ans:"home", opts:["school","book","wheel"], d:5}, {a:"room", b:"time", ans:"bed", opts:["book","sea","cup"], d:5}
     ];
     const SHARED_AFTER = [
-      {a:"tooth", b:"paint", ans:"brush", opts:["coat","ball","case"], d:2}, {a:"rain", b:"winter", ans:"coat", opts:["cake","shell","fish"], d:2},
+      {a:"tooth", b:"paint", ans:"brush", opts:["coat","ball","case"], d:2}, {a:"rain", b:"over", ans:"coat", opts:["cake","shell","fish"], d:2},
       {a:"letter", b:"sand", ans:"box", opts:["brush","work","light"], d:3}, {a:"moon", b:"torch", ans:"light", opts:["man","card","shell"], d:3},
       {a:"cup", b:"pan", ans:"cake", opts:["fly","work","ball"], d:3}, {a:"hair", b:"paper", ans:"clip", opts:["case","chair","fish"], d:4},
       {a:"button", b:"key", ans:"hole", opts:["bow","room","fly"], d:4}, {a:"fire", b:"home", ans:"work", opts:["flower","side","board"], d:4},
-      {a:"note", b:"exercise", ans:"book", opts:["case","room","step"], d:5}, {a:"water", b:"paint", ans:"colour", opts:["chair","cake","board"], d:5}
+      {a:"note", b:"story", ans:"book", opts:["case","room","step"], d:5}, {a:"water", b:"rain", ans:"fall", opts:["chair","cake","board"], d:5}
     ];
 
     function buildBank() {
@@ -1011,7 +1183,7 @@
         return qBase("analogies", "Part and whole analogies", d, "mc", `${a} is to ${b} as ${c} is to _____.`, ans, {
           choices: makeTextChoices(ans, opts),
           hint: "The first word is part of the second word.",
-          explanation: `A ${a} is part of a ${b}; a ${c} is part of a ${ans}.`
+          explanation: `${articleFor(a)[0].toUpperCase() + articleFor(a).slice(1)} ${a} is part of ${articleFor(b)} ${b}; ${articleFor(c)} ${c} is part of ${articleFor(ans)} ${ans}.`
         });
       });
 
@@ -1026,7 +1198,7 @@
         return qBase("analogies", "Function analogies", d, "mc", `${a} is to ${b} as ${c} is to _____.`, ans, {
           choices: makeTextChoices(ans, opts),
           hint: "Think about what each object is used for.",
-          explanation: `A ${a} ${b}; a ${c} ${ans}.`
+          explanation: `${leadingArticleFor(a)} ${a} ${b}; ${articleFor(c)} ${c} ${ans}.`
         });
       });
 
@@ -1081,7 +1253,7 @@
         ].slice(0, 2 + Math.floor(d/2));
         const set = pick(relationSets);
         const pair = pick(set.pairs);
-        const wrong = shuffle(relationSets.flatMap(s => s.pairs).filter(p => p.join("/") !== pair.join("/"))).slice(0, 3).map(p => p.join(" : "));
+        const wrong = shuffle(relationSets.filter(candidate => candidate.name !== set.name).flatMap(candidate => candidate.pairs)).slice(0, 3).map(p => p.join(" : "));
         const ans = pair.join(" : ");
         return qBase("analogies", "Word pair selection", d, "mc", `Which pair has the relationship: ${set.name}?`, ans, {
           choices: makeTextChoices(ans, wrong),
@@ -1123,17 +1295,22 @@
       });
 
       addFamily("classification", "Same group pair", d => {
-        const cats = Object.keys(WORDS.categories);
-        const cat = pick(cats);
-        const same = shuffle(WORDS.categories[cat]).slice(0, 2);
-        const distractors = shuffle(cats.filter(c => c !== cat).flatMap(c => WORDS.categories[c])).slice(0, 3);
-        const words = shuffle(same.concat(distractors));
-        return qBase("classification", "Same group pair", d, "multi", "Choose the two words that belong to the same group.", same, {
+        const sets = [
+          { category:"fruit", same:["apple","pear"], distractors:["hammer","jumper","museum"], level:1 },
+          { category:"tools", same:["hammer","chisel"], distractors:["banana","scarf","castle"], level:1 },
+          { category:"clothing", same:["jumper","scarf"], distractors:["otter","drill","library"], level:2 },
+          { category:"buildings", same:["library","museum"], distractors:["grape","spanner","swan"], level:3 },
+          { category:"transport", same:["train","ferry"], distractors:["cotton","rabbit","pencil"], level:4 },
+          { category:"materials", same:["cotton","glass"], distractors:["fox","cinema","plum"], level:5 }
+        ].filter(item => item.level <= d + 1);
+        const set = pick(sets);
+        const words = shuffle(set.same.concat(set.distractors));
+        return qBase("classification", "Same group pair", d, "multi", "Choose the two words that belong to the same group.", set.same, {
           choices: words.map(w => ({ value: w, label: w })),
           selectCount: 2,
           stimulus: wordBank(words),
           hint: "Only two words share the same category.",
-          explanation: `${same[0]} and ${same[1]} belong to the same group.`
+          explanation: `${set.same[0]} and ${set.same[1]} are both ${set.category}. Each remaining word comes from a different category.`
         });
       });
 
@@ -1152,17 +1329,19 @@
 
       addFamily("classification", "Odd one out by word type", d => {
         const sets = [
-          {type:"verbs", words:["run","jump","think","carry"], odd:"table"}, {type:"adjectives", words:["bright","heavy","gentle","narrow"], odd:"quickly"},
-          {type:"nouns", words:["river","castle","pencil","garden"], odd:"silent"}, {type:"adverbs", words:["slowly","carefully","brightly","quietly"], odd:"careful"},
-          {type:"verbs", words:["discover","observe","assist","expand"], odd:"fortunate"}, {type:"adjectives", words:["accurate","fragile","cautious","temporary"], odd:"movement"}
+          {target:"a verb", plural:"verbs", oddType:"an adjective", examples:[["observe","We observe the birds."],["admire","They admire the painting."],["expand","Metals expand when heated."]], odd:["fortunate","We were fortunate to arrive early."]},
+          {target:"an adjective", plural:"adjectives", oddType:"an adverb", examples:[["bright","The bright lamp shone."],["gentle","The gentle horse waited."],["narrow","We followed the narrow path."]], odd:["quickly","The rabbit moved quickly."]},
+          {target:"a noun", plural:"nouns", oddType:"an adjective", examples:[["river","The river flooded."],["castle","The castle stood nearby."],["garden","Our garden is small."]], odd:["silent","The room became silent."]},
+          {target:"an adverb", plural:"adverbs", oddType:"an adjective", examples:[["slowly","The tortoise moved slowly."],["carefully","She checked carefully."],["quietly","They entered quietly."]], odd:["careful","The careful pupil checked twice."]},
+          {target:"a verb", plural:"verbs", oddType:"an adjective", examples:[["discover","We may discover the answer."],["investigate","Police investigate the clue."],["calculate","Please calculate the total."]], odd:["temporary","The closure is temporary."]},
+          {target:"an adjective", plural:"adjectives", oddType:"a noun", examples:[["accurate","The accurate answer earned a mark."],["fragile","The fragile glass cracked."],["cautious","The cautious cyclist stopped."]], odd:["movement","The movement surprised us."]}
         ].slice(0, 2 + d);
         const set = pick(sets);
-        const words = shuffle(set.words.slice(0,3).concat(set.odd));
-        return qBase("classification", "Odd one out by word type", d, "mc", "Which word is the odd one out by word type?", set.odd, {
-          stimulus: wordBank(words),
-          choices: makeTextChoices(set.odd, set.words),
-          hint: `Most of the words are ${set.type}.`,
-          explanation: `${set.odd} is not the same word type as the others.`
+        const entries = shuffle(set.examples.concat([set.odd]));
+        return qBase("classification", "Odd one out by word type", d, "mc", `Which labelled word is not used as ${set.target} in its sentence?`, set.odd[0], {
+          choices: entries.map(([word, sentence]) => ({ value: word, label: `${word} — ${sentence}` })),
+          hint: `Use each sentence to decide how its labelled word is working. Three are ${set.plural}.`,
+          explanation: `${set.odd[0]} is used as ${set.oddType}; the other labelled words are used as ${set.plural}.`
         });
       });
 
@@ -1188,7 +1367,7 @@
       addFamily("classification", "Choose all that fit", d => {
         const set = pick([
           {rule:"are animals", good:["otter","swan","rabbit"], bad:["museum","cotton","hammer"]},
-          {rule:"can be used at school", good:["pencil","book","ruler"], bad:["otter","banana","castle"]},
+          {rule:"are items of stationery", good:["pencil","ruler","eraser"], bad:["otter","banana","castle"]},
           {rule:"are emotions", good:["joyful","anxious","proud"], bad:["station","cotton","hammer"]},
           {rule:"are forms of transport", good:["train","ferry","bicycle"], bad:["library","glove","apple"]},
           {rule:"are materials", good:["glass","cotton","metal"], bad:["fox","museum","scarf"]},
@@ -1239,10 +1418,12 @@
         const firstBlank = Math.random() < 0.5;
         const ans = firstBlank ? first : second;
         const opts = shuffle(COMPOUNDS.flat()).filter(w => w !== ans && w !== (firstBlank ? second : first)).slice(0, 3);
-        return qBase("compounds", "Complete the compound word", d, "mc", firstBlank ? `Choose the word that goes before ${second} to make a compound word.` : `Choose the word that goes after ${first} to make a compound word.`, ans, {
+        const compound = `${first}${second}`;
+        const meaning = COMPOUND_MEANINGS[compound];
+        return qBase("compounds", "Complete the compound word", d, "mc", firstBlank ? `Choose the word that goes before ${second} to make the compound meaning “${meaning}”.` : `Choose the word that goes after ${first} to make the compound meaning “${meaning}”.`, ans, {
           choices: makeTextChoices(ans, opts),
-          hint: "Put the two parts together and check whether they make a familiar word.",
-          explanation: `${first} + ${second} makes ${first}${second}.`
+          hint: "Use both the word ending and the definition. More than one combination may be a word, but only one matches the definition.",
+          explanation: `${first} + ${second} makes ${compound}, meaning ${meaning}.`
         });
       });
 
@@ -1271,18 +1452,18 @@
         while (wrong.length < 4) {
           const a = pick(COMPOUNDS)[0], b = pick(COMPOUNDS)[1];
           const text = `${a} + ${b}`;
-          if (text !== ans && !COMPOUNDS.some(p => `${p[0]} + ${p[1]}` === text)) wrong.push(text);
+          if (text !== ans && text !== "fire + man" && !wrong.includes(text) && !COMPOUNDS.some(p => `${p[0]} + ${p[1]}` === text)) wrong.push(text);
         }
-        return qBase("compounds", "Select the compound pair", d, "mc", "Which pair makes a common compound word?", ans, {
+        const compound = pair.join("");
+        return qBase("compounds", "Select the compound pair", d, "mc", `Which pair makes the compound meaning “${COMPOUND_MEANINGS[compound]}”?`, ans, {
           choices: makeTextChoices(ans, wrong),
-          hint: "Read each pair as one word.",
-          explanation: `${pair[0]}${pair[1]} is a common compound word.`
+          hint: "Join each pair, then compare its meaning with the definition.",
+          explanation: `${compound} means ${COMPOUND_MEANINGS[compound]}.`
         });
       });
 
       addFamily("compounds", "Match compound halves", d => {
-        const pairsRaw = [];
-        shuffle(COMPOUNDS).forEach(p => { if (pairsRaw.length < 4 && !pairsRaw.some(x => tidy(x[0]) === tidy(p[0]))) pairsRaw.push(p); });
+        const pairsRaw = pick(SAFE_COMPOUND_MATCH_SETS).map(pair => pair.slice());
         const pairs = pairsRaw.map(p => ({ left: p[0], right: p[1] }));
         return qBase("compounds", "Match compound halves", d, "match", "Match each first half to a second half to make compound words.", Object.fromEntries(pairs.map(p => [p.left, p.right])), {
           pairs,
@@ -1321,14 +1502,13 @@
 
       addFamily("compounds", "Odd compound out", d => {
         const good = shuffle(COMPOUNDS).slice(0, 3).map(p => `${p[0]}${p[1]}`);
-        let odd;
-        do { odd = pick(COMPOUNDS)[0] + pick(COMPOUNDS)[1]; } while (COMPOUNDS.some(p => `${p[0]}${p[1]}` === odd));
+        const odd = pick(SAFE_NON_COMPOUNDS);
         const words = shuffle(good.concat(odd));
         return qBase("compounds", "Odd compound out", d, "mc", "Which option is not a common compound word?", odd, {
           stimulus: wordBank(words),
           choices: makeTextChoices(odd, good),
           hint: "Three options should sound like familiar compound words.",
-          explanation: `${odd} is not a standard compound word here.`
+          explanation: `${odd} is not a recognised compound word; the other three are established compound words.`
         });
       });
 
@@ -1430,7 +1610,7 @@
       });
 
       addFamily("codes", "Number codes", d => {
-        const word = pick(WORDS.code.filter(w => w.length === 3));
+        const word = pick(WORDS.code.filter(w => w.length <= 3 + Math.floor(d / 2)));
         const ans = word.split("").map(pos).join("-");
         return qBase("codes", "Number codes", d, "mc", `Using A=1, B=2, C=3, what is the number code for ${word}?`, ans, {
           stimulus: svgAlphabet(word.split("")),
@@ -1571,17 +1751,16 @@
         });
       });
 
-      addFamily("sequences", "Number pattern with letters", d => {
-        const step = rint(2, 5 + d);
-        const start = rint(1, 9);
-        const seq = Array.from({length:4}, (_,i)=>String(start+i*step));
-        const ansNum = start+4*step;
-        const ans = String(ansNum);
-        return qBase("sequences", "Number pattern with letters", d, "mc", "What number comes next?", ans, {
+      addFamily("sequences", "Alphabet step sequence", d => {
+        const step = rint(1, Math.min(5, d + 1));
+        const start = rint(1, 26 - 4 * step);
+        const seq = Array.from({length:4}, (_,i) => letter(start + i * step));
+        const ans = letter(start + 4 * step);
+        return qBase("sequences", "Alphabet step sequence", d, "mc", "Which letter comes next?", ans, {
           stimulus: sequenceStrip(seq.concat("?")),
-          choices: makeTextChoices(ans, [String(ansNum+step), String(ansNum-step), String(ansNum+1), String(ansNum-1)]),
-          hint: `The numbers increase by ${step} each time.`,
-          explanation: `The next number is ${ans}.`
+          choices: makeLetterChoices(ans),
+          hint: `Move forward ${step} ${step === 1 ? "place" : "places"} in the alphabet each time.`,
+          explanation: `The letters move forward ${step} ${step === 1 ? "place" : "places"} each time, so the next letter is ${ans}.`
         });
       });
 
@@ -1589,7 +1768,14 @@
         const [word, ana] = pick(WORDS.anagrams.slice(0, 4 + d*2));
         const letters = shuffle(word.toUpperCase().split(""));
         const ans = word;
-        const distractors = shuffle(WORDS.anagrams.map(x => x[0]).filter(w => w !== word && w.length === word.length)).slice(0, 3);
+        const pool = unique(WORDS.anagrams.flat().concat([
+          "road","bird","lamp","milk","hand",
+          "chair","house","river","plant","bread","cloud","smile","dream","grape","peach","train",
+          "pencil","window","forest","animal","flower","castle","market","silver","orange","planet",
+          "journey","picture","blanket","freedom","morning"
+        ]), key);
+        const sortedAnswer = word.toLowerCase().split("").sort().join("");
+        const distractors = shuffle(pool.filter(w => w !== word && w.length === word.length && w.toLowerCase().split("").sort().join("") !== sortedAnswer)).slice(0, 3);
         return qBase("wordplay", "Anagrams", d, "mc", "Which word can be made from these letters?", ans, {
           stimulus: wordBank(letters),
           choices: makeTextChoices(ans, distractors),
@@ -1601,11 +1787,18 @@
       addFamily("wordplay", "Order an anagram", d => {
         const [word] = pick(WORDS.anagrams.filter(x => x[0].length <= 5 + Math.floor(d/2)));
         const letters = shuffle(word.toUpperCase().split(""));
-        return qBase("wordplay", "Order an anagram", d, "order", `Click the letters in the order that makes the word ${word}.`, word.toUpperCase().split(""), {
+        const clues = {
+          silent: "making no sound", danger: "the possibility of harm", elbow: "the joint in the middle of an arm",
+          stone: "a hard natural material", least: "the smallest amount", secure: "safe or firmly fixed",
+          teacher: "a person who helps pupils learn", angle: "the space between two meeting lines", heart: "the organ that pumps blood",
+          thing: "an object or item", state: "a condition or situation", save: "to keep from harm",
+          pears: "more than one pear", alert: "watchful and aware", react: "to respond to something"
+        };
+        return qBase("wordplay", "Order an anagram", d, "order", `Rearrange the tiles to make a word meaning “${clues[word]}”.`, word.toUpperCase().split(""), {
           tiles: letters,
           stimulus: wordBank(letters),
-          hint: "Use each letter once to spell the target word.",
-          explanation: `The correct order spells ${word}.`
+          hint: "Use every letter exactly once and use the definition to identify the word.",
+          explanation: `The correct order spells ${word}, meaning ${clues[word]}.`
         });
       });
 
@@ -1626,12 +1819,12 @@
 
       addFamily("wordplay", "Hidden word across words", d => {
         const items = [
-          {phrase:"The maN GOt ready.", ans:"MANGO", opts:["MAGIC","MOUNT","MINOR"]},
-          {phrase:"The teaM ATE early.", ans:"MATE", opts:["MEAT","TEAM","TAME"]},
-          {phrase:"The family arrived in ItaLI ON Monday.", ans:"LION", opts:["LINE","LOIN","LIME"]},
-          {phrase:"The maP INK smudged on the desk.", ans:"PINK", opts:["PINE","PARK","PICK"]},
-          {phrase:"The object we saW INDoors was unusual.", ans:"WIND", opts:["WIDE","WOOD","WORD"]},
-          {phrase:"The bird glideS LOW over the lake.", ans:"SLOW", opts:["SNOW","SHOW","SLOT"]}
+          {phrase:"The man got ready.", ans:"MANGO", opts:["MAGIC","MOUNT","MINOR"]},
+          {phrase:"The team ate early.", ans:"MATE", opts:["MALT","MINT","MOTH"]},
+          {phrase:"We ate at the deli on Monday.", ans:"LION", opts:["LINE","LOIN","LIME"]},
+          {phrase:"The map ink faded over time.", ans:"PINK", opts:["PINE","PARK","PICK"]},
+          {phrase:"The object we saw indoors was unusual.", ans:"WIND", opts:["WIDE","WOOD","WORD"]},
+          {phrase:"The bird glides low over the lake.", ans:"SLOW", opts:["SNOW","SHOW","SLOT"]}
         ].slice(0, 2 + d);
         const item = pick(items);
         return qBase("wordplay", "Hidden word across words", d, "mc", "Which word is hidden across two neighbouring words in the sentence?", item.ans.toLowerCase(), {
@@ -1658,12 +1851,12 @@
 
       addFamily("wordplay", "Add one letter", d => {
         const items = [
-          ["at", "cat", "c"], ["rain", "train", "t"], ["light", "flight", "f"], ["ear", "bear", "b"], ["late", "plate", "p"],
-          ["row", "grow", "g"], ["able", "table", "t"], ["ring", "bring", "b"], ["low", "slow", "s"], ["ink", "pink", "p"]
+          ["at", "cat", "c", ["d","e","i"]], ["rain", "train", "t", ["c","l","s"]], ["light", "flight", "f", ["c","d","m"]], ["ear", "bear", "b", ["a","c","q"]], ["late", "plate", "p", ["d","f","m"]],
+          ["row", "grow", "g", ["d","f","h"]], ["able", "table", "t", ["b","d","p"]], ["ring", "bring", "b", ["d","h","j"]], ["low", "slow", "s", ["d","h","j"]], ["ink", "pink", "p", ["b","d","g"]]
         ].slice(0, 3 + d*2);
-        const [base, newWord, ans] = pick(items);
+        const [base, newWord, ans, wrongLetters] = pick(items);
         return qBase("wordplay", "Add one letter", d, "mc", `Which letter can be added to the start of ${base} to make a new word?`, ans.toUpperCase(), {
-          choices: makeLetterChoices(ans.toUpperCase()),
+          choices: shuffle([ans].concat(wrongLetters)).map(letterChoice => ({ value: letterChoice.toUpperCase(), label: letterChoice.toUpperCase() })),
           hint: `Think of a letter that makes _${base} into a familiar word.`,
           explanation: `${ans.toUpperCase()} + ${base} makes ${newWord}.`
         });
@@ -1695,14 +1888,13 @@
       });
 
       addFamily("wordplay", "Find the changed letter", d => {
-        const word = pick(["STONE","PLANE","CHAIR","CLOUD","BRAVE","GARDEN","MARKET","PENCIL"].slice(0, 4 + d));
-        const idx = rint(0, word.length - 1);
-        const changed = word.slice(0,idx) + letter(pos(word[idx]) + rint(1,3)) + word.slice(idx+1);
-        const ans = word[idx];
-        return qBase("wordplay", "Find the changed letter", d, "mc", `One letter of ${word} has been changed to make ${changed}. Which original letter was changed?`, ans, {
+        const pair = pick([["STONE","STOVE"],["PLANE","PLACE"],["CHAIR","CHAIN"],["CLOUD","CLOUT"],["BRAVE","BRAKE"],["GARDEN","HARDEN"],["MARKET","MARKER"],["TRAIN","GRAIN"]].slice(0, 4 + d));
+        const idx = pair[0].split("").findIndex((letterValue, index) => letterValue !== pair[1][index]);
+        const ans = pair[0][idx];
+        return qBase("wordplay", "Find the changed letter", d, "mc", `One letter of ${pair[0]} has been changed to make ${pair[1]}. Which original letter was changed?`, ans, {
           choices: makeLetterChoices(ans),
           hint: "Compare the two words from left to right.",
-          explanation: `The changed position originally had ${ans}.`
+          explanation: `${pair[0]} becomes ${pair[1]} by changing ${ans} to ${pair[1][idx]}.`
         });
       });
 
@@ -1762,14 +1954,18 @@
           {s:["All robins are birds.", "All birds have feathers."], q:"What must be true?", a:"All robins have feathers.", opts:["All birds are robins.", "No robins are birds.", "All feathers are robins."]},
           {s:["Every member of the chess club has a badge.", "Nina is in the chess club."], q:"What must be true?", a:"Nina has a badge.", opts:["Nina runs the club.", "Everyone with a badge is in chess club.", "Nina has no badge."]},
           {s:["No square cards are blue.", "This card is square."], q:"What must be true?", a:"This card is not blue.", opts:["This card is blue.", "All cards are square.", "No cards are blue."]},
-          {s:["All library books have a label.", "This book has no label."], q:"What must be true?", a:"This book is not a library book.", opts:["This book is a library book.", "All labelled books are library books.", "The label fell off."]}
-        ].slice(0, 1 + d);
+          {s:["All library books have a label.", "This book has no label."], q:"What must be true?", a:"This book is not a library book.", opts:["This book is a library book.", "All labelled books are library books.", "The label fell off."]},
+          {s:["Every prefect wears a blue tie.", "Omar is a prefect."], q:"What must be true?", a:"Omar wears a blue tie.", opts:["Everyone wearing blue is a prefect.", "Omar is not a prefect.", "Omar wears a red tie."]},
+          {s:["No reptiles have fur.", "This animal has fur."], q:"What must be true?", a:"This animal is not a reptile.", opts:["This animal is a reptile.", "All furry animals are mammals.", "No animals have fur."]},
+          {s:["All cubes have six faces.", "This shape is a cube."], q:"What must be true?", a:"This shape has six faces.", opts:["Every six-faced shape is a cube.", "This shape has four faces.", "No cubes have faces."]},
+          {s:["All violins are instruments.", "No instruments are vegetables."], q:"What must be true?", a:"No violins are vegetables.", opts:["All vegetables are violins.", "No violins are instruments.", "Some vegetables are instruments."]}
+        ].slice(0, 3 + d);
         const item = pick(items);
         return qBase("logic", "Simple conclusions", d, "mc", item.q, item.a, {
           stimulus: `<div class="vr-card">${item.s.map(escapeHtml).join("<br>")}</div>`,
           choices: makeTextChoices(item.a, item.opts),
           hint: "Only choose what must follow from the statements.",
-          explanation: `${item.a} follows from the statements.`
+          explanation: `${item.a.replace(/[.!?]+$/, "")} follows from the statements.`
         });
       });
 
@@ -1777,7 +1973,7 @@
         const start = letter(rint(3, 23));
         const m1 = rint(1, 4 + d), m2 = rint(1, 3 + Math.floor(d/2));
         const ans = letter(pos(start) + m1 - m2);
-        return qBase("logic", "Following alphabet instructions", d, "mc", `Start at ${start}. Move ${m1} letters forwards, then ${m2} letters backwards. Where do you finish?`, ans, {
+        return qBase("logic", "Following alphabet instructions", d, "mc", `Start at ${start}. Move ${m1} letter${m1 === 1 ? "" : "s"} forwards, then ${m2} letter${m2 === 1 ? "" : "s"} backwards. Where do you finish?`, ans, {
           stimulus: svgAlphabet([start, ans]),
           choices: makeLetterChoices(ans),
           hint: "Do the instructions in order.",
@@ -1850,39 +2046,27 @@
       });
 
       addFamily("logic", "Order the clues", d => {
-        const steps = ["Read the clue", "Find the pattern", "Check each option", "Choose the answer"];
-        return qBase("logic", "Order the clues", d, "order", "Put these reasoning steps in the most sensible order.", steps, {
-          tiles: shuffle(steps),
-          hint: "Start by reading, then solve, then check, then answer.",
-          explanation: `A good order is: ${steps.join(" → ")}.`
+        const puzzles = [
+          { prompt: "Put the pupils in order from shortest to tallest.", clues: ["Asha is taller than Ben.", "Cara is taller than Asha."], answer: ["Ben", "Asha", "Cara"] },
+          { prompt: "Put the pupils in order from youngest to oldest.", clues: ["Leo is older than Mina.", "Priya is older than Leo."], answer: ["Mina", "Leo", "Priya"] },
+          { prompt: "Put the books in order from left to right.", clues: ["The red book is left of the blue book.", "The green book is right of the blue book."], answer: ["Red", "Blue", "Green"] },
+          { prompt: "Put the houses in order from fewest points to most points.", clues: ["Oak has fewer points than Beech.", "Maple has more points than Beech."], answer: ["Oak", "Beech", "Maple"] },
+          { prompt: "Put the runners in finishing order from first to last.", clues: ["Zara finished before Tom.", "Imran finished after Tom.", "Ava finished before Zara."], answer: ["Ava", "Zara", "Tom", "Imran"] },
+          { prompt: "Put the animals in order from slowest to fastest.", clues: ["Swan is faster than Otter.", "Fox is slower than Otter.", "Deer is faster than Swan."], answer: ["Fox", "Otter", "Swan", "Deer"] }
+        ].slice(0, Math.min(2 + d, 6));
+        const puzzle = pick(puzzles);
+        return qBase("logic", "Order the clues", d, "order", puzzle.prompt, puzzle.answer, {
+          stimulus: `<div class="vr-card">${puzzle.clues.map(escapeHtml).join("<br>")}</div>`,
+          tiles: shuffle(puzzle.answer),
+          hint: "Use each comparison to build one complete order.",
+          explanation: `The correct order is ${puzzle.answer.join(" → ")}.`
         });
       });
     }
 
     function extendBankWithFurtherVR500() {
       const choiceList = vals => shuffle(unique(vals, key)).slice(0, 4).map(v => ({ value: v, label: String(v) }));
-      const coord = (x, y) => `(${x}, ${y})`;
       const alphabetChoice = values => shuffle(unique(values, key)).slice(0, 4).map(v => ({ value: v, label: String(v) }));
-      const svgMiniGrid = (start, moves, end) => {
-        const w = 330, h = 330, left = 44, bottom = 286, step = 42;
-        let html = `<div class="diagram"><svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Coordinate grid">`;
-        for (let i = 0; i <= 5; i++) {
-          const x = left + i * step;
-          const y = bottom - i * step;
-          html += `<line x1="${x}" y1="${bottom}" x2="${x}" y2="${bottom - 5 * step}" stroke="#d8e4f5"/>`;
-          html += `<line x1="${left}" y1="${y}" x2="${left + 5 * step}" y2="${y}" stroke="#d8e4f5"/>`;
-          html += `<text x="${x}" y="${bottom + 20}" text-anchor="middle" font-family="Trebuchet MS, Arial" font-size="12" font-weight="700" fill="#5a6c82">${i}</text>`;
-          html += `<text x="${left - 14}" y="${y + 4}" text-anchor="end" font-family="Trebuchet MS, Arial" font-size="12" font-weight="700" fill="#5a6c82">${i}</text>`;
-        }
-        const sx = left + start.x * step, sy = bottom - start.y * step;
-        const ex = left + end.x * step, ey = bottom - end.y * step;
-        html += `<line x1="${left}" y1="${bottom}" x2="${left + 5 * step + 18}" y2="${bottom}" stroke="#17314f" stroke-width="2"/>`;
-        html += `<line x1="${left}" y1="${bottom}" x2="${left}" y2="${bottom - 5 * step - 18}" stroke="#17314f" stroke-width="2"/>`;
-        html += `<circle cx="${sx}" cy="${sy}" r="6" fill="#6f42c1"/><text x="${sx + 10}" y="${sy - 8}" font-family="Trebuchet MS, Arial" font-size="13" font-weight="900" fill="#17314f">Start</text>`;
-        html += `<circle cx="${ex}" cy="${ey}" r="6" fill="#ff7a00"/><text x="${ex + 10}" y="${ey - 8}" font-family="Trebuchet MS, Arial" font-size="13" font-weight="900" fill="#17314f">End</text>`;
-        html += `</svg><div class="small-note">Moves: ${escapeHtml(moves.join(", "))}</div></div>`;
-        return html;
-      };
 
       addFamily("vocab", "Further synonym precision", d => {
         const items = [
@@ -1972,7 +2156,7 @@
       addFamily("vocab", "Precise replacement", d => {
         const items = [
           ["very old", "ancient", ["recent", "ordinary", "cheerful"], 1], ["not willing", "reluctant", ["eager", "generous", "tidy"], 2],
-          ["easy to see", "obvious", ["hidden", "brief", "solid"], 2], ["full of care", "cautious", ["reckless", "plain", "rapid"], 3],
+          ["easy to see", "obvious", ["hidden", "brief", "solid"], 2], ["full of care", "careful", ["reckless", "plain", "rapid"], 3],
           ["lasting only a short time", "temporary", ["permanent", "accurate", "famous"], 4], ["using exact details", "precise", ["vague", "gentle", "silent"], 5]
         ].filter(x => x[3] <= d + 1);
         const item = pick(items);
@@ -1985,15 +2169,18 @@
 
       addFamily("analogies", "Cause and effect analogies", d => {
         const items = [
-          ["rain", "puddle", "fire", "smoke", ["spark", "ash", "heat"], 1], ["seed", "plant", "egg", "chick", ["nest", "shell", "bird"], 1],
-          ["practice", "improvement", "study", "knowledge", ["book", "lesson", "question"], 2], ["wind", "waves", "sun", "shadow", ["cloud", "heat", "light"], 3],
-          ["mistake", "correction", "illness", "recovery", ["doctor", "medicine", "fever"], 4], ["question", "answer", "problem", "solution", ["method", "number", "puzzle"], 5]
+          ["rain", "puddle", "smoke", "alarm", ["fire", "chimney", "cloud"], 1],
+          ["lack of sleep", "tiredness", "lack of food", "hunger", ["meal", "kitchen", "energy"], 1],
+          ["collision", "damage", "infection", "fever", ["medicine", "doctor", "germ"], 2],
+          ["friction", "heat", "heavy rain", "flooding", ["umbrella", "cloud", "forecast"], 3],
+          ["practice", "improvement", "regular reading", "a larger vocabulary", ["a book", "a library", "a story"], 4],
+          ["strong wind", "fallen branches", "freezing water", "ice", ["a freezer", "winter", "cold"], 5]
         ].filter(x => x[5] <= d + 1);
         const item = pick(items);
         return qBase("analogies", "Cause and effect analogies", d, "mc", `${item[0]} is to ${item[1]} as ${item[2]} is to _____.`, item[3], {
           choices: makeTextChoices(item[3], item[4]),
-          hint: "The first word can lead to, produce or require the second word.",
-          explanation: `${item[0]} can cause ${item[1]}; ${item[2]} can cause ${item[3]}.`
+          hint: "In each pair, the first event or condition directly produces the second.",
+          explanation: `${item[0]} can directly produce ${item[1]}; ${item[2]} can directly produce ${item[3]}.`
         });
       }, 10);
 
@@ -2007,7 +2194,7 @@
         return qBase("analogies", "Worker and tool analogies", d, "mc", `${item[0]} is to ${item[1]} as ${item[2]} is to _____.`, item[3], {
           choices: makeTextChoices(item[3], item[4]),
           hint: "The first person commonly uses the second object.",
-          explanation: `A ${item[0]} uses a ${item[1]}; a ${item[2]} uses a ${item[3]}.`
+          explanation: `${leadingArticleFor(item[0])} ${item[0]} uses ${articleFor(item[1])} ${item[1]}; ${articleFor(item[2])} ${item[2]} uses ${articleFor(item[3])} ${item[3]}.`
         });
       }, 10);
 
@@ -2029,7 +2216,7 @@
         const items = [
           ["cat", "kitten", "dog", "puppy", ["foal", "cub", "calf"], 1], ["cow", "calf", "horse", "foal", ["lamb", "puppy", "chick"], 1],
           ["duck", "duckling", "goose", "gosling", ["chick", "calf", "cub"], 2], ["lion", "cub", "sheep", "lamb", ["kid", "foal", "pup"], 3],
-          ["frog", "tadpole", "butterfly", "caterpillar", ["larva", "worm", "moth"], 4], ["kangaroo", "joey", "goat", "kid", ["calf", "cub", "chick"], 5]
+          ["frog", "tadpole", "deer", "fawn", ["cub", "calf", "joey"], 4], ["kangaroo", "joey", "goat", "kid", ["calf", "cub", "chick"], 5]
         ].filter(x => x[5] <= d + 1);
         const item = pick(items);
         return qBase("analogies", "Young animals analogies", d, "mc", `${item[0]} is to ${item[1]} as ${item[2]} is to _____.`, item[3], {
@@ -2041,9 +2228,9 @@
 
       addFamily("analogies", "Intensity analogies", d => {
         const items = [
-          ["warm", "hot", "cool", "cold", ["mild", "freezing", "wet"], 1], ["big", "huge", "small", "tiny", ["little", "short", "thin"], 1],
-          ["sad", "miserable", "happy", "delighted", ["cheerful", "excited", "proud"], 2], ["good", "excellent", "bad", "terrible", ["poor", "wrong", "plain"], 3],
-          ["tired", "exhausted", "surprised", "astonished", ["amazed", "curious", "confused"], 4], ["afraid", "terrified", "angry", "furious", ["cross", "annoyed", "wild"], 5]
+          ["warm", "hot", "cool", "cold", ["wet", "soft", "bright"], 1], ["big", "huge", "small", "tiny", ["short", "thin", "narrow"], 1],
+          ["sad", "miserable", "happy", "delighted", ["proud", "calm", "polite"], 2], ["good", "excellent", "bad", "terrible", ["plain", "uneven", "incorrect"], 3],
+          ["tired", "exhausted", "surprised", "astonished", ["curious", "confused", "prepared"], 4], ["afraid", "terrified", "angry", "furious", ["noisy", "patient", "hurried"], 5]
         ].filter(x => x[5] <= d + 1);
         const item = pick(items);
         return qBase("analogies", "Intensity analogies", d, "mc", `${item[0]} is to ${item[1]} as ${item[2]} is to _____.`, item[3], {
@@ -2088,12 +2275,12 @@
 
       addFamily("classification", "Choose two with the same word part", d => {
         const sets = [
-          { part: "pre-", rule: "begin with a prefix meaning before", correct: ["preview", "preheat"], distractors: ["prevent", "pretty", "press"] },
-          { part: "-less", rule: "end with a suffix meaning without", correct: ["careless", "fearless"], distractors: ["unless", "bless", "lessen"] },
-          { part: "re-", rule: "begin with a prefix meaning again", correct: ["rewrite", "rebuild"], distractors: ["ready", "real", "region"] },
-          { part: "sub-", rule: "begin with a prefix meaning under", correct: ["submarine", "subway"], distractors: ["subject", "subtle", "submit"] },
-          { part: "-er", rule: "can name a person who does the action", correct: ["runner", "baker"], distractors: ["river", "never", "under"] }
-        ].slice(0, 2 + d);
+          { part: "re-", rule: "can be split into re- and a complete action word, with the whole word meaning to do the action again", correct: ["rewrite", "rebuild"], distractors: ["ready", "region", "reply"], explanation: "rewrite is re- + write, and rebuild is re- + build" },
+          { part: "un-", rule: "can be split into un- and an adjective, with the whole word meaning not that adjective", correct: ["unfair", "unkind"], distractors: ["uncle", "unit", "under"], explanation: "unfair means not fair, and unkind means not kind" },
+          { part: "mis-", rule: "can be split into mis- and an action word, with the whole word meaning to do the action wrongly", correct: ["misread", "misjudge"], distractors: ["misery", "misty", "missile"], explanation: "misread means read wrongly, and misjudge means judge wrongly" },
+          { part: "over-", rule: "can be split into over- and an action word, with the whole word meaning to do the action too much", correct: ["overcook", "overfill"], distractors: ["oven", "oval", "overall"], explanation: "overcook means cook too much, and overfill means fill too much" },
+          { part: "-less", rule: "can be split into a noun and -less, with the whole word meaning without that noun", correct: ["careless", "fearless"], distractors: ["unless", "bless", "lessen"], explanation: "careless means without care, and fearless means without fear" }
+        ].slice(0, Math.min(2 + d, 5));
         const set = pick(sets);
         const words = shuffle(set.correct.concat(set.distractors));
         return qBase("classification", "Choose two with the same word part", d, "multi", `Choose the two words that ${set.rule}.`, set.correct, {
@@ -2101,7 +2288,7 @@
           choices: words.map(w => ({ value: w, label: w })),
           selectCount: 2,
           hint: `Look for the word part ${set.part} used with its meaning.`,
-          explanation: `${set.correct.join(" and ")} both ${set.rule}.`
+          explanation: `${set.explanation}.`
         });
       }, 10);
 
@@ -2128,8 +2315,8 @@
           { rule: "have double letters", correct: ["rabbit", "letter", "coffee"], odd: "tiger" },
           { rule: "begin and end with the same letter", correct: ["level", "radar", "rotor"], odd: "river" },
           { rule: "contain exactly one vowel", correct: ["grin", "plant", "frost"], odd: "piano" },
-          { rule: "are in alphabetical order inside the word", correct: ["almost", "ghost", "begin"], odd: "zebra" },
-          { rule: "contain the smaller word 'ear'", correct: ["learn", "earth", "pearl"], odd: "early" }
+          { rule: "have their letters in alphabetical order", correct: ["almost", "ghost", "begin"], odd: "zebra" },
+          { rule: "contain the smaller word 'ear'", correct: ["learn", "earth", "pearl"], odd: "eager" }
         ];
         const set = pick(sets.slice(0, 1 + d));
         const words = shuffle(set.correct.concat(set.odd));
@@ -2195,9 +2382,9 @@
 
       addFamily("compounds", "Shared final word compounds", d => {
         const items = [
-          ["cake", "pan", "fish", ["book", "chair", "door"], 1], ["man", "fire", "police", ["paper", "glass", "river"], 1],
+          ["cake", "pan", "fish", ["book", "chair", "door"], 1], ["side", "sea", "road", ["paper", "glass", "river"], 1],
           ["light", "sun", "moon", ["stone", "water", "foot"], 2], ["house", "green", "tree", ["paint", "road", "cup"], 2],
-          ["line", "coast", "goal", ["star", "cloud", "field"], 3], ["work", "home", "class", ["paper", "bag", "box"], 4],
+          ["line", "coast", "shore", ["star", "cloud", "field"], 3], ["work", "home", "class", ["paper", "bag", "box"], 4],
           ["keeper", "goal", "shop", ["field", "road", "sea"], 5]
         ].filter(x => x[4] <= d + 1);
         const item = pick(items);
@@ -2214,15 +2401,16 @@
         ];
         const pair = pick(pairs.slice(0, 4 + d));
         const ans = `${pair[0]} + ${pair[1]}`;
+        const compound = `${pair[0]}${pair[1]}`;
         const wrong = [];
         while (wrong.length < 5) {
           const a = pick(pairs)[0], b = pick(pairs)[1], txt = `${a} + ${b}`;
           if (txt !== ans && !wrong.includes(txt)) wrong.push(txt);
         }
-        return qBase("compounds", "Select the compound pair", d, "mc", "Which pair makes a common compound word?", ans, {
+        return qBase("compounds", "Select the compound pair", d, "mc", `Which pair makes the compound meaning “${COMPOUND_MEANINGS[compound]}”?`, ans, {
           choices: makeTextChoices(ans, wrong),
-          hint: "Join the two words and check whether the result is a familiar word.",
-          explanation: `${pair[0]} + ${pair[1]} makes ${pair[0]}${pair[1]}.`
+          hint: "Join each pair and compare its meaning with the definition.",
+          explanation: `${pair[0]} + ${pair[1]} makes ${compound}, meaning ${COMPOUND_MEANINGS[compound]}.`
         });
       }, 10);
 
@@ -2242,7 +2430,7 @@
 
       addFamily("compounds", "Word-chain compounds", d => {
         const chains = [
-          ["rain", "bow", "tie"], ["sun", "flower", "pot"], ["book", "case", "load"], ["door", "bell", "ring"], ["fire", "fly", "paper"], ["sea", "shell", "fish"]
+          ["sun", "flower", "pot"], ["book", "case", "load"], ["fire", "fly", "paper"], ["sea", "shell", "fish"], ["head", "land", "lord"], ["door", "step", "son"]
         ].slice(0, 2 + d);
         const chain = pick(chains);
         const ans = chain[1];
@@ -2345,9 +2533,10 @@
       addFamily("codes", "Alternating shift codes", d => {
         const words = ["CART", "FISH", "BIRD", "LAMP", "WIND", "SHIP", "FROG", "TREE"].slice(0, 4 + d);
         const word = pick(words);
-        const a = rint(1, 3), b = rint(2, 4);
+        const a = rint(1, 3);
+        const b = pick([1, 2, 3, 4].filter(value => value !== a));
         const ans = word.split("").map((ch, i) => letter(pos(ch) + (i % 2 === 0 ? a : b))).join("");
-        return qBase("codes", "Alternating shift codes", d, "mc", `A code moves the 1st, 3rd and 5th letters forward ${a}, and the 2nd and 4th letters forward ${b}. How is ${word} coded?`, ans, {
+        return qBase("codes", "Alternating shift codes", d, "mc", `Code ${word} by moving alternating letters forward ${a}, then ${b}, beginning with the first letter.`, ans, {
           stimulus: svgAlphabet(word.split("")),
           choices: makeTextChoices(ans, [shiftWord(word, a), shiftWord(word, b), word.split("").reverse().join(""), reverseWord(word)]),
           hint: "Apply the two shifts alternately: first letter, second letter, first letter, second letter.",
@@ -2446,7 +2635,7 @@
         const ans = seq[4];
         return qBase("sequences", "Word length sequences", d, "mc", `Choose the word that continues the pattern of word lengths: ${shown.join(", ")}, ____`, ans, {
           stimulus: sequenceStrip(shown),
-          choices: makeTextChoices(ans, ["road", "dictionary", "sun", "window", "sky"].filter(x => x.length !== ans.length || x !== ans)),
+          choices: makeTextChoices(ans, ["road", "dictionary", "sun", "window", "sky"].filter(x => x.length !== ans.length && x !== ans)),
           hint: "Count the letters in each word.",
           explanation: `The word lengths go ${shown.map(w=>w.length).join(", ")}, so the next word should have ${ans.length} letters. ${ans} fits.`
         });
@@ -2464,12 +2653,12 @@
 
       addFamily("wordplay", "Hidden word sentences", d => {
         const items = [
-          ["The starling landed near the old wall.", "star", ["ring", "land", "near"], 1],
-          ["We found a pearl in the box.", "ear", ["pea", "line", "fox"], 1],
-          ["The lantern glowed softly.", "ant", ["tern", "owl", "soft"], 2],
-          ["The captain kept the map safe.", "ink", ["cap", "hen", "tree"], 3],
-          ["A clear thaw followed the snow.", "ear", ["owl", "low", "hat"], 4],
-          ["The child ran through the garden.", "ran", ["ring", "hut", "den"], 5]
+          ["The starling landed near the old wall.", "star", ["boat", "milk", "shed"], 1],
+          ["We found a pearl in the box.", "ear", ["fox", "ship", "mud"], 1],
+          ["The lantern glowed softly.", "ant", ["owl", "ship", "desk"], 2],
+          ["The captain kept the map safe.", "ink", ["owl", "sun", "desk"], 3],
+          ["A clear thaw followed the snow.", "ear", ["owl", "hat", "ink"], 4],
+          ["The child ran through the garden.", "ran", ["ring", "hut", "map"], 5]
         ].filter(x => x[3] <= d + 1);
         const item = pick(items);
         return qBase("wordplay", "Hidden word sentences", d, "mc", `Which answer is hidden as consecutive letters in the sentence? ${item[0]}`, item[1], {
@@ -2518,10 +2707,17 @@
       }, 10);
 
       addFamily("wordplay", "One-letter word ladder", d => {
-        const items = [["cat", "cot", "change A to O"], ["pin", "pan", "change I to A"], ["ship", "shop", "change I to O"], ["bold", "cold", "change B to C"], ["lamp", "limp", "change A to I"], ["cart", "care", "change T to E"]].slice(0, 2 + d);
+        const items = [
+          ["cat", "cot", "changing A to O", ["dog", "sun", "map"]],
+          ["pin", "pan", "changing I to A", ["dog", "sun", "map"]],
+          ["ship", "shop", "changing I to O", ["step", "chin", "flag"]],
+          ["bold", "cold", "changing B to C", ["bend", "milk", "card"]],
+          ["lamp", "limp", "changing A to I", ["bump", "land", "coat"]],
+          ["cart", "care", "changing T to E", ["coat", "barn", "fish"]]
+        ].slice(0, 2 + d);
         const item = pick(items);
         return qBase("wordplay", "One-letter word ladder", d, "mc", `Which word is made from ${item[0]} by changing exactly one letter?`, item[1], {
-          choices: makeTextChoices(item[1], [item[0], item[1].split("").reverse().join(""), "stone", "paper", "train"].filter(x => x !== item[1])),
+          choices: makeTextChoices(item[1], item[3]),
           hint: "Only one letter should change; all other letters stay in the same positions.",
           explanation: `${item[0]} becomes ${item[1]} by ${item[2]}.`
         });
@@ -2579,26 +2775,46 @@
         });
       }, 10);
 
-      addFamily("logic", "Grid direction instructions", d => {
-        const start = { x: rint(0, 3), y: rint(0, 3) };
-        const moves = [];
-        let x = start.x, y = start.y;
-        const steps = [
-          ["right", 1, 0], ["up", 0, 1], ["right", 1, 0], ["up", 0, 1], ["left", -1, 0], ["down", 0, -1]
-        ];
-        shuffle(steps).slice(0, 3 + Math.min(2, d)).forEach(([name, dx, dy]) => {
-          const amount = rint(1, 2);
-          if (x + dx*amount >= 0 && x + dx*amount <= 5 && y + dy*amount >= 0 && y + dy*amount <= 5) {
-            x += dx * amount; y += dy * amount; moves.push(`${amount} ${name}`);
-          }
+      addFamily("logic", "Following letter instructions", d => {
+        const operations = {
+          firstToEnd: { text: "Move the first letter to the end.", apply: letters => letters.slice(1).concat(letters[0]) },
+          lastToFront: { text: "Move the last letter to the front.", apply: letters => [letters[letters.length - 1]].concat(letters.slice(0, -1)) },
+          reverse: { text: "Reverse the order of all the letters.", apply: letters => letters.slice().reverse() },
+          swapEnds: { text: "Swap the first and last letters.", apply: letters => {
+            const copy = letters.slice();
+            [copy[0], copy[copy.length - 1]] = [copy[copy.length - 1], copy[0]];
+            return copy;
+          } }
+        };
+        const plans = [
+          ["CARE", ["lastToFront"], 1], ["TEAM", ["firstToEnd"], 1], ["LAMP", ["reverse"], 1],
+          ["FISH", ["swapEnds"], 2], ["GLOW", ["firstToEnd", "swapEnds"], 2], ["STAR", ["lastToFront", "reverse"], 3],
+          ["BRICK", ["firstToEnd", "reverse"], 3], ["PLANT", ["swapEnds", "firstToEnd"], 4],
+          ["CLOUD", ["swapEnds", "reverse"], 4], ["STREAM", ["firstToEnd", "swapEnds", "reverse"], 5]
+        ].filter(item => item[2] <= d + 1);
+        const [start, operationKeys] = pick(plans);
+        let letters = start.split("");
+        const snapshots = [];
+        operationKeys.forEach(operationKey => {
+          letters = operations[operationKey].apply(letters);
+          snapshots.push(letters.join(""));
         });
-        const end = { x, y };
-        const ans = coord(end.x, end.y);
-        return qBase("logic", "Grid direction instructions", d, "mc", `Start at ${coord(start.x, start.y)} and follow the moves. Where do you finish?`, ans, {
-          stimulus: svgMiniGrid(start, moves.length ? moves : ["no move"], end),
-          choices: makeTextChoices(ans, [coord(start.x, start.y), coord(end.y, end.x), coord(Math.max(0,end.x-1), end.y), coord(end.x, Math.max(0,end.y-1))]),
-          hint: "Apply one instruction at a time, keeping track of x and y.",
-          explanation: `After following the moves, the final point is ${ans}.`
+        const answer = letters.join("");
+        const candidates = [
+          start,
+          operations[operationKeys[0]].apply(start.split("")).join(""),
+          operations[operationKeys[operationKeys.length - 1]].apply(start.split("")).join(""),
+          answer.split("").reverse().join(""),
+          answer.slice(1) + answer[0],
+          answer[answer.length - 1] + answer.slice(0, -1),
+          operations.swapEnds.apply(answer.split("")).join("")
+        ];
+        const distractors = unique(candidates, key).filter(candidate => key(candidate) !== key(answer));
+        return qBase("logic", "Following letter instructions", d, "mc", "Follow the instructions in order. Which letter row do you finish with?", answer, {
+          stimulus: `<div class="vr-card"><strong>Start:</strong> ${escapeHtml(start)}<ol>${operationKeys.map(operationKey => `<li>${escapeHtml(operations[operationKey].text)}</li>`).join("")}</ol></div>`,
+          choices: makeTextChoices(answer, distractors),
+          hint: "Carry out one instruction at a time and write down each new letter order.",
+          explanation: `Starting with ${start}, the letter rows are ${snapshots.join(" then ")}. The final row is ${answer}.`
         });
       }, 10);
 
@@ -2622,33 +2838,8 @@
 
     function extendBankWithAdditionalVR500() {
       const mk = (answer, distractors, min = 4) => makeTextChoices(answer, distractors, min);
-      const coord = (x, y) => `(${x}, ${y})`;
       const yesNo = ans => ["yes", "no", "cannot tell", "only sometimes"].map(v => ({ value: v, label: v }));
       const withAnswerFirst = (answer, distractors) => makeTextChoices(answer, distractors);
-      const svgPathGrid = (start, moves, end) => {
-        const w = 330, h = 330, left = 44, bottom = 286, step = 42;
-        let html = `<div class="diagram"><svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Coordinate grid with route">`;
-        for (let i = 0; i <= 5; i++) {
-          const x = left + i * step;
-          const y = bottom - i * step;
-          html += `<line x1="${x}" y1="${bottom}" x2="${x}" y2="${bottom - 5 * step}" stroke="#d8e4f5"/>`;
-          html += `<line x1="${left}" y1="${y}" x2="${left + 5 * step}" y2="${y}" stroke="#d8e4f5"/>`;
-          html += `<text x="${x}" y="${bottom + 20}" text-anchor="middle" font-family="Trebuchet MS, Arial" font-size="12" font-weight="700" fill="#5a6c82">${i}</text>`;
-          html += `<text x="${left - 12}" y="${y + 4}" text-anchor="end" font-family="Trebuchet MS, Arial" font-size="12" font-weight="700" fill="#5a6c82">${i}</text>`;
-        }
-        let x = start.x, y = start.y;
-        const pts = [`${left + x * step},${bottom - y * step}`];
-        moves.forEach(m => { x += m.dx; y += m.dy; pts.push(`${left + x * step},${bottom - y * step}`); });
-        const sx = left + start.x * step, sy = bottom - start.y * step;
-        const ex = left + end.x * step, ey = bottom - end.y * step;
-        html += `<line x1="${left}" y1="${bottom}" x2="${left + 5 * step + 18}" y2="${bottom}" stroke="#17314f" stroke-width="2"/>`;
-        html += `<line x1="${left}" y1="${bottom}" x2="${left}" y2="${bottom - 5 * step - 18}" stroke="#17314f" stroke-width="2"/>`;
-        html += `<polyline points="${pts.join(' ')}" fill="none" stroke="#6f42c1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`;
-        html += `<circle cx="${sx}" cy="${sy}" r="6" fill="#16803a"/><text x="${sx + 9}" y="${sy - 8}" font-family="Trebuchet MS, Arial" font-size="13" font-weight="900" fill="#17314f">Start</text>`;
-        html += `<circle cx="${ex}" cy="${ey}" r="6" fill="#ff7a00"/><text x="${ex + 9}" y="${ey - 8}" font-family="Trebuchet MS, Arial" font-size="13" font-weight="900" fill="#17314f">End</text>`;
-        html += `</svg></div>`;
-        return html;
-      };
 
       addFamily("vocab", "Additional synonym accuracy", d => {
         const items = [
@@ -2813,21 +3004,26 @@
         return qBase("analogies", "Additional worker and tool analogies", d, "mc", `${item[0]} is to ${item[1]} as ${item[2]} is to …`, item[3], {
           choices: mk(item[3], [item[0], item[1], item[2], "book"]),
           hint: "Think about what the person uses or where they work.",
-          explanation: `A ${item[0]} uses a ${item[1]}; a ${item[2]} uses a ${item[3]}.`
+          explanation: `${leadingArticleFor(item[0])} ${item[0]} uses ${articleFor(item[1])} ${item[1]}; ${articleFor(item[2])} ${item[2]} uses ${articleFor(item[3])} ${item[3]}.`
         });
       }, 10);
 
       addFamily("analogies", "Additional object function analogies", d => {
         const items = [
-          ["knife", "cut", "spoon", "stir", 1], ["key", "unlock", "torch", "shine", 1], ["umbrella", "shelter", "blanket", "warm", 2],
-          ["ruler", "measure", "scale", "weigh", 2], ["map", "guide", "calendar", "schedule", 3], ["anchor", "hold", "sieve", "strain", 3],
-          ["thermometer", "measure temperature", "compass", "show direction", 4], ["microscope", "magnify", "filter", "separate", 5]
-        ].filter(x => x[4] <= d + 1);
+          ["knife", "cutting material", "thermometer", "measuring temperature", ["measuring length", "showing direction", "fastening paper"], 1],
+          ["key", "unlocking a door", "torch", "providing light", ["measuring weight", "cutting material", "carrying water"], 1],
+          ["umbrella", "keeping rain off", "blanket", "keeping someone warm", ["showing the time", "measuring distance", "opening a lock"], 2],
+          ["ruler", "measuring length", "weighing scale", "measuring weight", ["showing direction", "magnifying objects", "holding paper together"], 2],
+          ["map", "showing routes", "calendar", "showing dates", ["measuring temperature", "cutting shapes", "unlocking doors"], 3],
+          ["anchor", "holding a boat in place", "sieve", "separating solids from liquids", ["showing the time", "making objects larger", "measuring angles"], 3],
+          ["thermometer", "measuring temperature", "compass", "showing direction", ["measuring weight", "fastening cloth", "providing shelter"], 4],
+          ["microscope", "magnifying tiny objects", "filter", "removing unwanted material", ["showing dates", "measuring length", "unlocking a door"], 5]
+        ].filter(x => x[5] <= d + 1);
         const item = pick(items);
-        return qBase("analogies", "Additional object function analogies", d, "mc", `${item[0]} is to ${item[1]} as ${item[2]} is to …`, item[3], {
-          choices: mk(item[3], [item[0], item[1], item[2], "decorate"]),
-          hint: "The first word is an object and the second describes what it is used for.",
-          explanation: `A ${item[0]} is used to ${item[1]}; a ${item[2]} is used to ${item[3]}.`
+        return qBase("analogies", "Additional object function analogies", d, "mc", `${leadingArticleFor(item[0])} ${item[0]} is used for ${item[1]}. What is ${articleFor(item[2])} ${item[2]} mainly used for?`, item[3], {
+          choices: mk(item[3], item[4]),
+          hint: "Both answers should describe the main function of the object.",
+          explanation: `${leadingArticleFor(item[0])} ${item[0]} is used for ${item[1]}; ${articleFor(item[2])} ${item[2]} is mainly used for ${item[3]}.`
         });
       }, 10);
 
@@ -2841,7 +3037,7 @@
         return qBase("analogies", "Additional part-whole analogies", d, "mc", `${item[0]} is to ${item[1]} as ${item[2]} is to …`, item[3], {
           choices: mk(item[3], [item[0], item[1], item[2], "piece"]),
           hint: "The first item is part of the second item.",
-          explanation: `A ${item[0]} is part of a ${item[1]}; a ${item[2]} is part of a ${item[3]}.`
+          explanation: `${leadingArticleFor(item[0])} ${item[0]} is part of ${articleFor(item[1])} ${item[1]}; ${articleFor(item[2])} ${item[2]} is part of ${articleFor(item[3])} ${item[3]}.`
         });
       }, 10);
 
@@ -2969,7 +3165,7 @@
           pairs: rows.map(r => ({ left: r[0], right: r[1] })),
           options: shuffle(unique(rows.map(r => r[1]))),
           hint: "Match each item to the group it belongs to.",
-          explanation: rows.map(r => `${r[0]} is a ${r[1]}`).join("; ") + "."
+          explanation: rows.map(r => `${r[0]} belongs to the ${r[1]} category`).join("; ") + "."
         });
       }, 10);
 
@@ -2996,14 +3192,16 @@
       addFamily("compounds", "Additional compound completion", d => {
         const items = [
           ["rain", "bow", ["coat", "drop", "cloud"], 1], ["tooth", "paste", ["brush", "ache", "fairy"], 1], ["door", "bell", ["way", "mat", "step"], 2],
-          ["star", "fish", ["light", "ship", "dust"], 2], ["note", "book", ["pad", "paper", "case"], 3], ["wheel", "chair", ["barrow", "house", "room"], 3],
+          ["star", "fish", ["light", "ship", "dust"], 2], ["note", "book", ["case", "stone", "light"], 3], ["wheel", "chair", ["barrow", "house", "room"], 3],
           ["dragon", "fly", ["fruit", "boat", "wing"], 4], ["butter", "fly", ["cup", "milk", "dish"], 4], ["key", "board", ["hole", "ring", "stone"], 5]
         ].filter(x => x[3] <= d + 1);
         const item = pick(items);
-        return qBase("compounds", "Additional compound completion", d, "mc", `Which word can join ${item[0]} to make a compound word?`, item[1], {
+        const compound = `${item[0]}${item[1]}`;
+        const meaning = COMPOUND_MEANINGS[compound] || `the recognised word ${compound}`;
+        return qBase("compounds", "Additional compound completion", d, "mc", `Which word joins ${item[0]} to make the compound meaning “${meaning}”?`, item[1], {
           choices: mk(item[1], item[2]),
-          hint: "Put the words together and listen for a familiar compound word.",
-          explanation: `${item[0]} + ${item[1]} = ${item[0]}${item[1]}.`
+          hint: "Use the definition as well as the word beginning. Only one option matches both.",
+          explanation: `${item[0]} + ${item[1]} = ${compound}, meaning ${meaning}.`
         });
       }, 10);
 
@@ -3038,9 +3236,13 @@
       }, 10);
 
       addFamily("compounds", "Additional compound matching", d => {
-        const pairs = shuffle([
-          ["snow", "man"], ["rain", "coat"], ["tooth", "brush"], ["star", "fish"], ["door", "bell"], ["key", "board"]
-        ]).slice(0, 4);
+        const groups = [
+          [["tooth", "brush"], ["rain", "coat"], ["book", "mark"], ["sun", "rise"]],
+          [["star", "fish"], ["door", "bell"], ["cup", "cake"], ["foot", "path"]],
+          [["sea", "shell"], ["butter", "fly"], ["key", "hole"], ["bed", "room"]],
+          [["news", "paper"], ["air", "port"], ["shoe", "lace"], ["farm", "yard"]]
+        ].slice(0, Math.min(1 + d, 4));
+        const pairs = shuffle(pick(groups)).slice(0, d <= 2 ? 3 : 4);
         const ans = {};
         pairs.forEach(p => ans[p[0]] = p[1]);
         return qBase("compounds", "Additional compound matching", d, "match", "Match each first word to a second word to make a compound word.", ans, {
@@ -3053,8 +3255,8 @@
 
       addFamily("compounds", "Additional compound word chains", d => {
         const chains = [
-          ["sun", "flower", "pot"], ["door", "bell", "rope"], ["rain", "bow", "tie"], ["book", "case", "load"],
-          ["star", "fish", "tank"], ["tooth", "brush", "stroke"], ["sea", "shell", "fish"], ["fire", "work", "shop"]
+          ["sun", "flower", "pot"], ["book", "case", "load"], ["tooth", "brush", "stroke"], ["sea", "shell", "fish"],
+          ["fire", "work", "shop"], ["hand", "bag", "pipe"], ["door", "step", "son"], ["head", "land", "lord"]
         ];
         const chain = pick(chains.slice(0, 3 + d));
         return qBase("compounds", "Additional compound word chains", d, "order", "Order the three words so that word 1 + word 2 and word 2 + word 3 both make compound words.", chain, {
@@ -3119,10 +3321,11 @@
       addFamily("codes", "Additional alternating shift codes", d => {
         const words = ["CART", "FISH", "BIRD", "LAMP", "STAR", "TRAIN", "PLANT", "CLOUD"].slice(0, 4 + d);
         const word = pick(words);
-        const a = rint(1, 2 + Math.min(2, d));
-        const b = rint(1, 2 + Math.min(2, d));
+        const maxShift = 2 + Math.min(2, d);
+        const a = rint(1, maxShift);
+        const b = pick(Array.from({ length: maxShift }, (_, index) => index + 1).filter(value => value !== a));
         const ans = word.split("").map((ch, i) => letter(pos(ch) + (i % 2 === 0 ? a : b))).join("");
-        return qBase("codes", "Additional alternating shift codes", d, "mc", `Code ${word} by moving the 1st, 3rd and 5th letters forward ${a}, and the 2nd, 4th and 6th letters forward ${b}.`, ans, {
+        return qBase("codes", "Additional alternating shift codes", d, "mc", `Code ${word} by moving alternating letters forward ${a}, then ${b}, beginning with the first letter.`, ans, {
           stimulus: svgAlphabet(word.split("")),
           choices: mk(ans, [shiftWord(word, a), shiftWord(word, b), word.split("").reverse().join(""), reverseWord(word)]),
           hint: "Use the two shifts alternately: first letter uses the first shift, second letter uses the second shift.",
@@ -3241,16 +3444,17 @@
 
       addFamily("sequences", "Additional word length sequences", d => {
         const sets = [
-          [["a", "at", "ant", "ante"], "antenna"], [["go", "goat", "garden", "gardener"], "gardening"], [["in", "ink", "inch", "inches"], "inching"],
-          [["be", "bee", "beet", "beetle"], "beetles"], [["or", "ore", "orchid", "orchards"], "orchestra"]
+          [["a", "to", "sun", "moon"], "chair"], [["go", "run", "jump", "train"], "castle"], [["ox", "ant", "wolf", "tiger"], "orange"],
+          [["I", "am", "cat", "bird"], "table"], [["up", "bee", "tree", "house"], "planet"]
         ];
         const item = pick(sets.slice(0, 2 + d));
         const ans = item[1];
-        return qBase("sequences", "Additional word length sequences", d, "mc", `Which word best continues the increasing-length pattern?`, ans, {
+        const distractorPool = ["sun", "road", "dictionary", "window", "sky", "pencil", "book", "elephant"];
+        return qBase("sequences", "Additional word length sequences", d, "mc", `Which word continues the pattern by having ${ans.length} letters?`, ans, {
           stimulus: sequenceStrip(item[0].concat(["?"])),
-          choices: mk(ans, ["cat", "home", "ordinary", "window", "pencil"]),
-          hint: "Look at how the number of letters changes.",
-          explanation: `The words increase in length; ${ans} continues the pattern best.`
+          choices: mk(ans, distractorPool.filter(word => word.length !== ans.length)),
+          hint: "Count the letters: each word has one more letter than the previous word.",
+          explanation: `The displayed words have ${item[0].map(word => word.length).join(", ")} letters. The next needs ${ans.length}; ${ans} has ${ans.length} letters.`
         });
       }, 10);
 
@@ -3279,18 +3483,18 @@
 
       addFamily("wordplay", "Additional hidden word", d => {
         const items = [
-          ["The pupPET ALways made us laugh.", "PETAL", 1], ["We saw a RAVEN near the old tree.", "RAVEN", 1],
-          ["The caMEL ON the sign looked friendly.", "MELON", 2], ["The kitTEN Tumbled over the mat.", "TENT", 2],
-          ["The beaCH AIR felt cold.", "CHAIR", 3], ["The boaT RACE started at noon.", "TRACE", 3],
-          ["They foUND ERic behind the curtain.", "UNDER", 4], ["The fiSH ARK was full of drawings.", "SHARK", 4],
-          ["The tunnel was DARK and damp.", "DARK", 5], ["A PLANET can be seen through the telescope.", "PLANET", 5]
+          ["The puppet always made us laugh.", "PETAL", 1], ["The camera vendor arrived early.", "RAVEN", 1],
+          ["The camel on the sign looked friendly.", "MELON", 2], ["The kitten tumbled over the mat.", "TENT", 2],
+          ["The beach air felt cold.", "CHAIR", 3], ["The boat race started at noon.", "TRACE", 3],
+          ["They found Eric behind the curtain.", "UNDER", 4], ["The music loudly filled the hall.", "CLOUD", 4],
+          ["The glass and plate were on the table.", "SAND", 5], ["The brochure advised visitors to arrive early.", "READ", 5]
         ].filter(x => x[2] <= d + 1);
         const item = pick(items);
         return qBase("wordplay", "Additional hidden word", d, "mc", "Which hidden group of letters appears in the sentence?", item[1], {
           stimulus: `<div class="vr-card">${escapeHtml(item[0])}</div>`,
-          choices: mk(item[1], ["STONE", "CLOUD", "BRICK", "TRAIN", "SHELL"]),
-          hint: "The hidden letters may run across a space between words.",
-          explanation: `${item[1]} is hidden in the sentence when spaces are ignored.`
+          choices: mk(item[1], shuffle(items.map(candidate => candidate[1]).filter(answer => answer !== item[1])).slice(0, 5)),
+          hint: "Ignore spaces and look across the boundary between two neighbouring words.",
+          explanation: `${item[1]} is hidden across two neighbouring words when the space is ignored.`
         });
       }, 10);
 
@@ -3379,24 +3583,30 @@
         });
       }, 10);
 
-      addFamily("logic", "Additional grid route instructions", d => {
-        let start = { x: rint(0, 2), y: rint(0, 2) };
-        let moves = [];
-        let x = start.x, y = start.y;
-        const possible = [["right", 1, 0], ["up", 0, 1], ["left", -1, 0], ["down", 0, -1]];
-        for (let i = 0; i < 3 + Math.min(2, d); i++) {
-          const valid = possible.filter(m => x + m[1] >= 0 && x + m[1] <= 5 && y + m[2] >= 0 && y + m[2] <= 5);
-          const m = pick(valid);
-          x += m[1]; y += m[2];
-          moves.push({ name: m[0], dx: m[1], dy: m[2] });
-        }
-        const end = { x, y };
-        const ans = coord(end.x, end.y);
-        return qBase("logic", "Additional grid route instructions", d, "mc", `Start at ${coord(start.x, start.y)}. Move ${moves.map(m => m.name).join(", ")}. Where do you finish?`, ans, {
-          stimulus: svgPathGrid(start, moves, end),
-          choices: mk(ans, [coord(start.x, start.y), coord(end.y, end.x), coord(Math.max(0,end.x-1), end.y), coord(end.x, Math.max(0,end.y-1))]),
-          hint: "Right increases x, left decreases x, up increases y and down decreases y.",
-          explanation: `Following the moves ends at ${ans}.`
+      addFamily("logic", "Two-clue word selection", d => {
+        const items = [
+          ["Which word names a fruit and contains a doubled consonant?", "apple", ["apple", "hammer", "otter", "train", "coat"], 1],
+          ["Which word names an animal and ends with the letter t?", "rabbit", ["rabbit", "orange", "jumper", "museum", "spanner"], 1],
+          ["Which word names a building and begins with c?", "cinema", ["cinema", "bicycle", "plastic", "banana", "chisel"], 1],
+          ["Which word names a form of transport and contains a doubled consonant?", "ferry", ["ferry", "berry", "glass", "happy", "tram"], 2],
+          ["Which word names an emotion and contains three consecutive vowels?", "anxious", ["anxious", "museum", "quiet", "coach", "paper"], 2],
+          ["Which word names a material and contains a doubled consonant?", "cotton", ["cotton", "rabbit", "button", "metal", "station"], 2],
+          ["Which word names an animal and has more than seven letters?", "hedgehog", ["hedgehog", "theatre", "bicycle", "chisel", "banana"], 3],
+          ["Which word names a form of transport and contains the letter c twice?", "bicycle", ["bicycle", "cinema", "plastic", "chisel", "excited"], 3],
+          ["Which word names a building and contains three vowels?", "museum", ["museum", "jumper", "hammer", "orange", "plastic"], 3],
+          ["Which word names an emotion and contains the letter e twice?", "excited", ["excited", "bicycle", "cinema", "cotton", "spanner"], 4],
+          ["Which word names a material and ends with the letters tic?", "plastic", ["plastic", "rabbit", "cinema", "orange", "trowel"], 4],
+          ["Which word names a tool and contains six different letters?", "trowel", ["trowel", "orange", "museum", "rabbit", "bicycle"], 4],
+          ["Which word names a tool and contains the letter n twice?", "spanner", ["spanner", "banana", "station", "nervous", "cotton"], 5],
+          ["Which word names a building and contains the letter e twice?", "theatre", ["theatre", "teacher", "scooter", "paper", "orange"], 5],
+          ["Which word names an emotion and has four letters?", "calm", ["calm", "tram", "glass", "plum", "drill"], 5]
+        ].filter(item => item[3] <= d + 1);
+        const [prompt, answer, words] = pick(items);
+        return qBase("logic", "Two-clue word selection", d, "mc", prompt, answer, {
+          stimulus: wordBank(shuffle(words)),
+          choices: words.map(word => ({ value: word, label: word })),
+          hint: "An option must satisfy both the meaning clue and the letter clue.",
+          explanation: `${answer} is the only option that satisfies both clues.`
         });
       }, 10);
 
@@ -3562,7 +3772,7 @@
         return qBase("analogies", "Final function analogies", d, "mc", `${item[0]} is to ${item[1]} as ${target[0]} is to _____.`, target[1], {
           choices: mk(target[1], shuffle(functions.map(p => p[1]).filter(v => key(v) !== key(target[1]))), 4),
           hint: "The first word is an object or tool; the second word says what it is used to do.",
-          explanation: `A ${item[0]} is used to ${item[1]}; a ${target[0]} is used to ${target[1]}.`
+          explanation: `${leadingArticleFor(item[0])} ${item[0]} is used to ${item[1]}; ${articleFor(target[0])} ${target[0]} is used to ${target[1]}.`
         });
       }, 10);
 
@@ -3582,7 +3792,7 @@
         return qBase("analogies", "Final material analogies", d, "mc", `${pair[1]} is to ${pair[0]} as ${target[1]} is to _____.`, target[0], {
           choices: mk(target[0], shuffle(materials.map(p => p[0]).filter(v => v !== target[0])), 4),
           hint: "The relationship is object to material.",
-          explanation: `A ${target[1]} can be made from ${target[0]}.`
+          explanation: `${leadingArticleFor(target[1])} ${target[1]} can be made from ${target[0]}.`
         });
       }, 10);
 
@@ -3592,7 +3802,7 @@
         return qBase("analogies", "Final part-whole analogies", d, "mc", `${pair[0]} is to ${pair[1]} as ${target[0]} is to _____.`, target[1], {
           choices: mk(target[1], shuffle(partWhole.map(p => p[1]).filter(v => v !== target[1])), 4),
           hint: "The first word is a part of the second word.",
-          explanation: `A ${target[0]} is part of a ${target[1]}.`
+          explanation: `${leadingArticleFor(target[0])} ${target[0]} is part of ${articleFor(target[1])} ${target[1]}.`
         });
       }, 10);
 
@@ -3667,19 +3877,18 @@
 
       addFamily("classification", "Final grammatical odd one out", d => {
         const sets = [
-          ["verbs", ["jump", "think", "carry", "repair"], "pencil", 2],
-          ["nouns", ["castle", "river", "teacher", "window"], "gentle", 2],
-          ["adjectives", ["careful", "ancient", "fragile", "narrow"], "collect", 3],
-          ["adverbs", ["slowly", "quietly", "boldly", "carefully"], "garden", 4],
-          ["prepositions", ["under", "beside", "through", "between"], "swift", 5]
-        ].filter(x => x[3] <= d + 1);
-        const item = pick(sets);
-        const words = shuffle(item[1].slice(0, 3).concat(item[2]));
-        return qBase("classification", "Final grammatical odd one out", d, "mc", "Which word is not the same type of word as the other three?", item[2], {
-          stimulus: wordBank(words),
-          choices: words.map(v => ({ value: v, label: v })),
-          hint: "Decide whether the words are nouns, verbs, adjectives or another word type.",
-          explanation: `Three options are ${item[0]}, but ${item[2]} is not.`
+          {target:"a verb", plural:"verbs", oddType:"a noun", examples:[["examine","We examine the evidence."],["describe","Please describe the picture."],["calculate","They calculate the total."]], odd:["museum","The museum opens today."], level:2},
+          {target:"a noun", plural:"nouns", oddType:"an adjective", examples:[["teacher","The teacher smiled."],["window","The window was open."],["river","The river rose."]], odd:["fragile","The fragile vase cracked."], level:2},
+          {target:"an adjective", plural:"adjectives", oddType:"a verb", examples:[["ancient","The ancient wall remained."],["narrow","The narrow lane twisted."],["precise","Her precise answer was correct."]], odd:["collect","We collect the books."], level:3},
+          {target:"an adverb", plural:"adverbs", oddType:"a noun", examples:[["boldly","She spoke boldly."],["silently","The fox moved silently."],["politely","He replied politely."]], odd:["garden","The garden looked colourful."], level:4},
+          {target:"a preposition", plural:"prepositions", oddType:"an adjective", examples:[["under","The ball rolled under the chair."],["beside","Maya stood beside the gate."],["between","The path runs between two fields."]], odd:["swift","The swift runner won."], level:5}
+        ].filter(item => item.level <= d + 1);
+        const set = pick(sets);
+        const entries = shuffle(set.examples.concat([set.odd]));
+        return qBase("classification", "Final grammatical odd one out", d, "mc", `Which labelled word is not used as ${set.target} in its sentence?`, set.odd[0], {
+          choices: entries.map(([word, sentence]) => ({ value: word, label: `${word} — ${sentence}` })),
+          hint: `Use each sentence to decide how its labelled word is working. Three are ${set.plural}.`,
+          explanation: `${set.odd[0]} is used as ${set.oddType}; the other labelled words are used as ${set.plural}.`
         });
       }, 10);
 
@@ -3688,7 +3897,7 @@
           ["start and end with the same letter", ["level", "radar", "civic", "refer"], ["river", "pencil"], 2],
           ["contain a double letter", ["letter", "rabbit", "summer", "coffee"], ["garden", "planet"], 2],
           ["have five letters", ["table", "chair", "plant", "cloud"], ["window", "tree"], 3],
-          ["contain exactly two vowels", ["pencil", "basket", "window", "market"], ["audio", "tree"], 4],
+          ["contain exactly two vowels", ["pencil", "basket", "window", "market"], ["audio", "rhythm"], 4],
           ["letters are in alphabetical order", ["almost", "ghost", "begin", "chintz"], ["zebra", "cabin"], 5]
         ].filter(x => x[3] <= d + 1);
         const item = pick(patterns);
@@ -3786,7 +3995,13 @@
       }, 10);
 
       addFamily("compounds", "Final match compound halves", d => {
-        const pairs = shuffle([["tooth", "brush"], ["rain", "coat"], ["book", "mark"], ["sun", "rise"], ["foot", "path"], ["snow", "flake"], ["key", "board"], ["moon", "light"]]).slice(0, 4);
+        const groups = [
+          [["water", "fall"], ["arm", "chair"], ["tooth", "paste"], ["bed", "time"]],
+          [["light", "house"], ["horse", "shoe"], ["news", "paper"], ["day", "dream"]],
+          [["ear", "ring"], ["rain", "bow"], ["foot", "print"], ["star", "fish"]],
+          [["key", "board"], ["sun", "flower"], ["hair", "cut"], ["tea", "spoon"]]
+        ].slice(0, Math.min(1 + d, 4));
+        const pairs = shuffle(pick(groups)).slice(0, d <= 2 ? 3 : 4);
         const answer = {};
         pairs.forEach(p => answer[p[0]] = p[1]);
         return qBase("compounds", "Final match compound halves", d, "match", "Match each first half to a second half to make compound words.", answer, {
@@ -3799,7 +4014,7 @@
 
       addFamily("compounds", "Final shared middle word", d => {
         const groups = [
-          ["school", ["bag", "day", "work"], ["river", "glass", "quick"], 1],
+          ["rain", ["bow", "coat", "drop"], ["river", "glass", "quick"], 1],
           ["water", ["fall", "proof", "colour"], ["teacher", "ancient", "pencil"], 2],
           ["paper", ["clip", "back", "work"], ["fruit", "bright", "castle"], 3],
           ["light", ["house", "bulb", "weight"], ["garden", "otter", "clever"], 4],
@@ -4027,18 +4242,22 @@
 
       addFamily("wordplay", "Final hidden word across words", d => {
         const items = [
-          ["rain", "cameRA INside"], ["star", "laST ARrived"], ["pear", "toP EARly"], ["lion", "ItaLI ON Monday"], ["sand", "waS ANDy"], ["read", "shoRE ADvice"], ["mile", "saMI LEft"]
+          ["rain", "The camera inside the case was new."], ["star", "The last artist arrived early."],
+          ["pear", "The rope around the box was loose."], ["lion", "We ate at the deli on Monday."],
+          ["sand", "The glass and plate were on the table."], ["read", "The brochure advised visitors to arrive early."],
+          ["mile", "Sami left before noon."]
         ].slice(0, 3 + d);
         const [answer, phrase] = pick(items);
-        return qBase("wordplay", "Final hidden word across words", d, "mc", `Which word is hidden across the words: ${phrase}?`, answer, {
+        return qBase("wordplay", "Final hidden word across words", d, "mc", "Which word is hidden across two neighbouring words in the sentence?", answer, {
+          stimulus: `<div class="vr-card">${escapeHtml(phrase)}</div>`,
           choices: mk(answer, shuffle(items.map(p => p[0]).filter(v => v !== answer)).slice(0, 5)),
-          hint: "A hidden word may start at the end of one word and continue at the start of the next.",
-          explanation: `${answer} is hidden across the boundary between the words.`
+          hint: "Ignore the space: the word starts at the end of one word and continues at the start of the next.",
+          explanation: `${answer} is hidden across the boundary between two neighbouring words.`
         });
       }, 10);
 
       addFamily("wordplay", "Final remove one letter", d => {
-        const items = [["plane", "plan"], ["stone", "tone"], ["grape", "gape"], ["brave", "bare"], ["castle", "caste"], ["stream", "steam"], ["planet", "plant"]].slice(0, 4 + d);
+        const items = [["plane", "plan"], ["stone", "tone"], ["grape", "gape"], ["brave", "rave"], ["castle", "caste"], ["stream", "steam"], ["planet", "plant"]].slice(0, 4 + d);
         const [start, answer] = pick(items);
         return qBase("wordplay", "Final remove one letter", d, "mc", `Remove one letter from ${start.toUpperCase()} to make a new word. Which word can be made?`, answer, {
           choices: mk(answer, shuffle(items.map(p => p[1]).filter(v => v !== answer)).slice(0, 5)),
@@ -4130,50 +4349,60 @@
 
       addFamily("logic", "Final coded conclusion", d => {
         const rules = [
-          ["All robins are birds. All birds have wings.", "Robins have wings.", "yes"],
-          ["All squares are rectangles. Some rectangles are blue.", "All squares are blue.", "cannot tell"],
-          ["No cats are fish. Milo is a cat.", "Milo is a fish.", "no"],
-          ["All roses are flowers. Some flowers are red.", "All roses are red.", "cannot tell"],
-          ["Every member of the chess club is in Year 6. Priya is in the chess club.", "Priya is in Year 6.", "yes"]
+          ["All robins are birds. All birds have wings.", "Robins have wings.", "must be true", "Every robin is included in the group of birds, and every bird has wings."],
+          ["All squares are rectangles. Some rectangles are blue.", "All squares are blue.", "not enough information", "The blue rectangles are not stated to be squares."],
+          ["No cats are fish. Milo is a cat.", "Milo is a fish.", "must be false", "Milo is a cat, and the clues say that no cats are fish."],
+          ["All roses are flowers. Some flowers are red.", "All roses are red.", "not enough information", "The red flowers are not stated to be roses."],
+          ["Every member of the chess club is in Year 6. Priya is in the chess club.", "Priya is in Year 6.", "must be true", "Priya belongs to a group whose members are all in Year 6."]
         ].slice(0, 3 + d);
         const item = pick(rules);
-        return qBase("logic", "Final coded conclusion", d, "mc", `${item[0]} Can we be certain that: '${item[1]}'?`, item[2], {
-          choices: ["yes", "no", "cannot tell", "only sometimes"].map(v => ({ value: v, label: v })),
+        return qBase("logic", "Final coded conclusion", d, "mc", `${item[0]} Consider the conclusion: “${item[1]}” Which judgement is correct?`, item[2], {
+          choices: ["must be true", "must be false", "not enough information"].map(v => ({ value: v, label: v })),
           hint: "Use only the information given. Do not add extra facts.",
-          explanation: `The correct conclusion is '${item[2]}' because the statement must follow from the clues, not from a guess.`
+          explanation: item[3]
         });
       }, 10);
     }
 
     function renderHome() {
+      els.practiceIntro.classList.remove("hidden");
+      els.storageStatus.textContent = storageAvailable ? "" : " Progress cannot be stored in this browser session.";
       els.homeToolbar.classList.remove("hidden");
       els.homeScreen.classList.remove("hidden");
       els.quizScreen.classList.add("hidden");
       els.resultsScreen.classList.add("hidden");
       els.topicGrid.innerHTML = Object.entries(TOPICS).map(([id,t]) => {
-        const level = id === "mixed" ? averageLevel() : topicLevel(id);
         const p = id === "mixed" ? progress.lifetime : progress.topics[id];
-        const pct = p.total ? Math.round(100 * p.correct / p.total) : 0;
-        return `<button class="topic-card" data-topic="${id}" type="button">
-          <div><div class="topic-icon">${t.icon}</div><h2>${escapeHtml(t.name)}</h2><p>${escapeHtml(t.blurb)}</p></div>
-          <div class="mini-stats"><span>${dotLevel(level)}</span><span>${p.total ? `${pct}% correct` : "new topic"}</span></div>
+        const accuracy = p.total ? Math.round(100 * p.correct / p.total) : 0;
+        const statsLabel = `Accuracy ${accuracy}%. Attempted ${p.total}.${p.assisted ? ` Assisted ${p.assisted}.` : ""}`;
+        return `<button class="topic-card" data-topic="${id}" type="button" aria-label="${escapeHtml(`${t.name}. ${statsLabel}`)}">
+          <span class="topic-main"><span class="topic-icon" aria-hidden="true">${t.icon}</span><span class="topic-name">${escapeHtml(t.name)}</span><span class="topic-blurb">${escapeHtml(t.blurb)}</span></span>
+          <span class="mini-stats"><span>Accuracy ${accuracy}%</span><span>Attempted ${p.total}</span>${p.assisted ? `<span>Assisted ${p.assisted}</span>` : ""}</span>
         </button>`;
       }).join("");
       els.topicGrid.querySelectorAll(".topic-card").forEach(btn => btn.addEventListener("click", () => startRound(btn.dataset.topic)));
     }
 
-    function startRound(topic) {
+    function startRound(topic, retryQuestions = null) {
       state.topic = topic;
       state.currentEntry = null;
       state.currentQuestion = null;
       state.used = new Set();
       state.usedQuestions = new Set();
+      state.usedFamilies = new Set();
       state.topicCounts = {};
       state.index = 0;
-      state.length = Number(els.sessionLength.value || 15);
+      state.retryQuestions = Array.isArray(retryQuestions) && retryQuestions.length ? retryQuestions.slice() : null;
+      state.length = state.retryQuestions ? state.retryQuestions.length : Number(els.sessionLength.value || 15);
       state.score = 0;
+      state.pointsEarned = 0;
+      state.pointsPossible = 0;
+      state.assistedCount = 0;
       state.answered = false;
       state.history = [];
+      state.mcSelected = null;
+      state.hintUsed = false;
+      els.practiceIntro.classList.add("hidden");
       els.homeToolbar.classList.add("hidden");
       els.homeScreen.classList.add("hidden");
       els.resultsScreen.classList.add("hidden");
@@ -4193,10 +4422,24 @@
 
     function pickEntry(chosenTopic) {
       const baseLevel = topicLevel(chosenTopic);
-      let pool = BANK.filter(e => e.topic === chosenTopic && e.difficulty === baseLevel && !state.used.has(e.id));
-      if (!pool.length) pool = BANK.filter(e => e.topic === chosenTopic && Math.abs(e.difficulty - baseLevel) <= 1 && !state.used.has(e.id));
-      if (!pool.length) pool = BANK.filter(e => e.topic === chosenTopic && !state.used.has(e.id));
-      if (!pool.length) throw new Error(`No unused questions remain for ${chosenTopic}.`);
+      const available = BANK.filter(entry => entry.topic === chosenTopic && !state.used.has(entry.id));
+      if (!available.length) throw new Error(`No unused questions remain for ${chosenTopic}.`);
+      const recentlyUsed = new Set(progress.recentFamilies.slice(-64));
+      const ranked = available.map(entry => {
+        const family = `${entry.topic}|${entry.title}`;
+        return {
+          entry,
+          repeatedInRound: state.usedFamilies.has(family) ? 1 : 0,
+          recentlySeen: recentlyUsed.has(family) ? 1 : 0,
+          distance: Math.abs(entry.difficulty - baseLevel)
+        };
+      });
+      const bestRoundScore = Math.min(...ranked.map(candidate => candidate.repeatedInRound));
+      let candidates = ranked.filter(candidate => candidate.repeatedInRound === bestRoundScore);
+      const bestRecentScore = Math.min(...candidates.map(candidate => candidate.recentlySeen));
+      candidates = candidates.filter(candidate => candidate.recentlySeen === bestRecentScore);
+      const bestDistance = Math.min(...candidates.map(candidate => candidate.distance));
+      const pool = candidates.filter(candidate => candidate.distance === bestDistance).map(candidate => candidate.entry);
       const entry = pick(pool);
       state.used.add(entry.id);
       return entry;
@@ -4204,27 +4447,51 @@
 
     function nextQuestion() {
       if (state.index >= state.length) return showResults();
+      if (state.retryQuestions) {
+        const question = state.retryQuestions[state.index];
+        state.currentEntry = { id: `retry-${state.index}`, topic: question.topic, title: question.title };
+        state.currentQuestion = question;
+        state.currentFingerprint = questionFingerprint(question);
+        state.answered = false;
+        state.multiSelected = new Set();
+        state.orderSelected = [];
+        state.mcSelected = null;
+        state.hintUsed = false;
+        return renderQuestion();
+      }
       const chosenTopic = pickAdaptiveTopic();
       let selected = null;
-      for (let attempt = 0; attempt < 200; attempt++) {
-        const entry = pickEntry(chosenTopic);
+      let recentFallback = null;
+      const recentFingerprints = new Set(progress.recentQuestions.map(item => typeof item === "string" ? item : item.fingerprint));
+      for (let attempt = 0; attempt < 400; attempt++) {
+        let entry;
+        try { entry = pickEntry(chosenTopic); }
+        catch (error) { break; }
         const level = topicLevel(entry.topic);
         const diff = clamp(Math.round((entry.difficulty + level) / 2), 1, 5);
-        const question = entry.gen(diff);
+        const question = prepareQuestion(entry.gen(diff), diff);
         const fingerprint = questionFingerprint(question);
-        if (!state.usedQuestions.has(fingerprint)) {
-          selected = { entry, question, fingerprint };
+        if (state.usedQuestions.has(fingerprint)) continue;
+        const candidate = { entry, question, fingerprint };
+        if (!recentFingerprints.has(fingerprint)) {
+          selected = candidate;
           break;
         }
+        if (!recentFallback) recentFallback = candidate;
       }
+      selected = selected || recentFallback;
       if (!selected) throw new Error(`Unable to create a new question for ${chosenTopic}.`);
       state.currentEntry = selected.entry;
       state.currentQuestion = selected.question;
+      state.currentFingerprint = selected.fingerprint;
       state.usedQuestions.add(selected.fingerprint);
+      state.usedFamilies.add(`${selected.entry.topic}|${selected.entry.title}`);
       state.topicCounts[chosenTopic] = (state.topicCounts[chosenTopic] || 0) + 1;
       state.answered = false;
       state.multiSelected = new Set();
       state.orderSelected = [];
+      state.mcSelected = null;
+      state.hintUsed = false;
       renderQuestion();
     }
 
@@ -4232,11 +4499,13 @@
       const q = state.currentQuestion;
       const topicName = TOPICS[q.topic].name;
       els.quizTitle.textContent = state.topic === "mixed" ? "Mixed Practice" : topicName;
-      els.scoreText.textContent = `Score ${state.score}`;
+      els.scoreText.textContent = `Points ${displayPoints(state.pointsEarned)}/${displayPoints(state.pointsPossible)}`;
       els.questionCountText.textContent = `Question ${state.index + 1} of ${state.length}`;
-      els.levelText.textContent = `Level ${topicLevel(q.topic)}`;
+      els.levelText.textContent = "Adaptive practice";
       els.progressFill.style.width = `${(state.index / state.length) * 100}%`;
-      els.tagRow.innerHTML = `<span class="tag">${escapeHtml(topicName)}</span><span class="tag">${escapeHtml(q.title)}</span><span class="tag">Difficulty ${q.difficulty}/5</span>`;
+      els.progressMeter.setAttribute("aria-valuemax", String(state.length));
+      els.progressMeter.setAttribute("aria-valuenow", String(state.index));
+      els.tagRow.innerHTML = `<span class="tag">${escapeHtml(topicName)}</span><span class="tag">${escapeHtml(publicQuestionTitle(q.title))}</span>`;
       els.questionText.innerHTML = formatQuestionText(q.prompt);
       els.stimulusWrap.innerHTML = q.stimulus || "";
       els.feedbackPanel.className = "feedback-panel hidden";
@@ -4244,11 +4513,13 @@
       els.nextBtn.classList.add("hidden");
       els.checkBtn.classList.add("hidden");
       els.hintBtn.disabled = false;
+      els.hintBtn.textContent = "Show hint";
       els.interactionWrap.innerHTML = "";
       if (q.kind === "mc") renderMC(q);
       if (q.kind === "multi") renderMulti(q);
       if (q.kind === "order") renderOrder(q);
       if (q.kind === "match") renderMatch(q);
+      setTimeout(() => els.questionPanel.focus(), 0);
     }
 
     function renderMC(q) {
@@ -4259,11 +4530,30 @@
         btn.type = "button";
         btn.className = "choice-btn";
         btn.dataset.value = choice.value;
+        btn.setAttribute("aria-pressed", "false");
         btn.innerHTML = `<strong>${String.fromCharCode(65+i)}.</strong> ${escapeHtml(choice.label)}`;
-        btn.addEventListener("click", () => submitAnswer(choice.value));
+        btn.addEventListener("click", () => {
+          if (state.answered) return;
+          state.mcSelected = choice.value;
+          wrap.querySelectorAll(".choice-btn").forEach(option => {
+            const selected = key(option.dataset.value) === key(choice.value);
+            option.classList.toggle("selected", selected);
+            option.setAttribute("aria-pressed", String(selected));
+          });
+        });
         wrap.appendChild(btn);
       });
       els.interactionWrap.appendChild(wrap);
+      els.checkBtn.classList.remove("hidden");
+      els.checkBtn.onclick = () => {
+        if (state.mcSelected == null) {
+          els.feedbackPanel.className = "feedback-panel hint";
+          els.feedbackPanel.textContent = "Choose an answer before checking.";
+          els.feedbackPanel.classList.remove("hidden");
+          return;
+        }
+        submitAnswer(state.mcSelected);
+      };
     }
 
     function renderMulti(q) {
@@ -4278,6 +4568,7 @@
         btn.type = "button";
         btn.className = "multi-btn";
         btn.dataset.value = choice.value;
+        btn.setAttribute("aria-pressed", "false");
         btn.textContent = choice.label;
         btn.addEventListener("click", () => {
           if (state.answered) return;
@@ -4285,11 +4576,13 @@
           if (state.multiSelected.has(val)) {
             state.multiSelected.delete(val);
             btn.classList.remove("selected");
+            btn.setAttribute("aria-pressed", "false");
           } else {
             const limit = q.selectCount || q.answer.length;
             if (state.multiSelected.size >= limit) return;
             state.multiSelected.add(val);
             btn.classList.add("selected");
+            btn.setAttribute("aria-pressed", "true");
           }
         });
         grid.appendChild(btn);
@@ -4305,6 +4598,7 @@
       board.className = "order-board";
       const answerRow = document.createElement("div");
       answerRow.className = "answer-row";
+      answerRow.setAttribute("role", "group");
       answerRow.setAttribute("aria-label", "Selected answer order");
       const tileRow = document.createElement("div");
       tileRow.className = "tile-row";
@@ -4318,8 +4612,17 @@
           const selected = state.orderSelected[i];
           slot.textContent = selected ? selected.label : "";
           slot.title = selected ? "Click to remove" : "Empty slot";
+          slot.setAttribute("aria-label", selected ? `Position ${i + 1}: ${selected.label}. Click to remove.` : `Position ${i + 1}: empty`);
           slot.disabled = !selected || state.answered;
-          if (selected) slot.addEventListener("click", () => { if (!state.answered) { state.orderSelected.splice(i, 1); renderTiles(); refreshAnswer(); } });
+          if (selected) slot.addEventListener("click", () => {
+            if (!state.answered) {
+              const removedIndex = selected.idx;
+              state.orderSelected.splice(i, 1);
+              renderTiles();
+              refreshAnswer();
+              tileRow.querySelector(`[data-tile-index="${removedIndex}"]`)?.focus();
+            }
+          });
           answerRow.appendChild(slot);
         }
       }
@@ -4329,8 +4632,10 @@
           const used = state.orderSelected.some(t => t.idx === tile.idx);
           const btn = document.createElement("button");
           btn.type = "button";
-          btn.className = "tile-btn";
-          btn.textContent = tile.label;
+            btn.className = "tile-btn";
+            btn.textContent = tile.label;
+            btn.dataset.tileIndex = String(tile.idx);
+            btn.setAttribute("aria-label", `${tile.label}${used ? ", already selected" : ", add to the next position"}`);
           btn.disabled = used || state.answered;
           if (used) btn.classList.add("selected");
           btn.addEventListener("click", () => {
@@ -4338,6 +4643,7 @@
             state.orderSelected.push(tile);
             renderTiles();
             refreshAnswer();
+            tileRow.querySelector("button:not(:disabled)")?.focus();
           });
           tileRow.appendChild(btn);
         });
@@ -4361,7 +4667,7 @@
       const card = document.createElement("div");
       card.className = "match-card";
       const options = q.options || unique(q.pairs.map(p => p.right));
-      card.innerHTML = `<table><thead><tr><th>Item</th><th>Match</th></tr></thead><tbody>${q.pairs.map((p,i) => `<tr><td>${escapeHtml(p.left)}</td><td><select data-left="${escapeHtml(p.left)}"><option value="">Choose…</option>${options.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("")}</select></td></tr>`).join("")}</tbody></table>`;
+      card.innerHTML = `<table><thead><tr><th scope="col">Item</th><th scope="col">Match</th></tr></thead><tbody>${q.pairs.map((p,i) => `<tr><th scope="row">${escapeHtml(p.left)}</th><td><select data-left="${escapeHtml(p.left)}" aria-label="Match for ${escapeHtml(p.left)}"><option value="">Choose…</option>${options.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("")}</select></td></tr>`).join("")}</tbody></table>`;
       els.interactionWrap.appendChild(card);
       els.checkBtn.classList.remove("hidden");
       els.checkBtn.onclick = () => {
@@ -4371,43 +4677,72 @@
       };
     }
 
-    function correctFor(q, value) {
+    function scoreQuestion(q, value) {
+      let earned = 0;
+      let max = 1;
       if (q.kind === "multi") {
-        const a = q.answer.map(key).sort().join("|");
-        const v = Array.isArray(value) ? value.map(key).sort().join("|") : "";
-        return a === v;
+        const answers = new Set(q.answer.map(key));
+        const selected = new Set((Array.isArray(value) ? value : []).map(key));
+        max = answers.size;
+        earned = [...answers].filter(answer => selected.has(answer)).length;
+      } else if (q.kind === "order") {
+        const given = Array.isArray(value) ? value : [];
+        max = q.answer.length;
+        earned = q.answer.reduce((total, answer, index) => total + (key(given[index] || "") === key(answer) ? 1 : 0), 0);
+      } else if (q.kind === "match") {
+        const answers = Object.entries(q.answer);
+        max = answers.length;
+        earned = answers.reduce((total, [left, answer]) => total + (key(value?.[left] || "") === key(answer) ? 1 : 0), 0);
+      } else {
+        earned = key(value) === key(q.answer) ? 1 : 0;
       }
-      if (q.kind === "order") {
-        if (!Array.isArray(value) || value.length !== q.answer.length) return false;
-        return value.map(key).join("|") === q.answer.map(key).join("|");
-      }
-      if (q.kind === "match") {
-        return Object.keys(q.answer).every(k => key(value[k] || "") === key(q.answer[k]));
-      }
-      return key(value) === key(q.answer);
+      return { earned, max, ratio: max ? earned / max : 0, fullyCorrect: earned === max };
+    }
+
+    function rememberQuestion(q) {
+      const fingerprint = state.currentFingerprint || questionFingerprint(q);
+      progress.recentQuestions = progress.recentQuestions.filter(item => (typeof item === "string" ? item : item.fingerprint) !== fingerprint);
+      progress.recentQuestions.push({ topic: q.topic, fingerprint });
+      progress.recentQuestions = progress.recentQuestions.slice(-400);
+      const family = `${q.topic}|${q.title}`;
+      progress.recentFamilies = progress.recentFamilies.filter(item => item !== family);
+      progress.recentFamilies.push(family);
+      progress.recentFamilies = progress.recentFamilies.slice(-96);
     }
 
     function submitAnswer(value) {
       if (state.answered) return;
       const q = state.currentQuestion;
-      const ok = correctFor(q, value);
+      const result = scoreQuestion(q, value);
+      const awarded = state.hintUsed ? result.earned / 2 : result.earned;
       state.answered = true;
       state.index += 1;
-      if (ok) state.score += 1;
-      applyProgress(q.topic, ok);
-      markInteraction(q, value, ok);
-      showFeedback(ok, value);
-      state.history.push({ topic: q.topic, title: q.title, prompt: q.prompt, correct: ok, given: fmtAnswer(value), answer: fmtAnswer(q.answer), explanation: q.explanation });
+      if (result.fullyCorrect) state.score += 1;
+      state.pointsEarned += awarded;
+      state.pointsPossible += result.max;
+      if (state.hintUsed) state.assistedCount += 1;
+      applyProgress(q.topic, result, state.hintUsed, awarded);
+      rememberQuestion(q);
+      markInteraction(q, value, result);
+      showFeedback(result, value, awarded);
+      state.history.push({
+        topic: q.topic, title: q.title, prompt: q.prompt, correct: result.fullyCorrect,
+        earned: result.earned, awarded, max: result.max, assisted: state.hintUsed,
+        given: fmtAnswer(value), answer: fmtAnswer(q.answer), explanation: q.explanation, question: q
+      });
+      els.nextBtn.textContent = state.index >= state.length ? "See results" : "Next question";
       els.nextBtn.classList.remove("hidden");
+      els.nextBtn.focus();
       els.checkBtn.classList.add("hidden");
       els.hintBtn.disabled = true;
       els.progressFill.style.width = `${(state.index / state.length) * 100}%`;
-      els.scoreText.textContent = `Score ${state.score}`;
-      els.questionCountText.textContent = `Question ${Math.min(state.index + 1, state.length)} of ${state.length}`;
+      els.progressMeter.setAttribute("aria-valuenow", String(state.index));
+      els.scoreText.textContent = `Points ${displayPoints(state.pointsEarned)}/${displayPoints(state.pointsPossible)}`;
+      els.questionCountText.textContent = state.index >= state.length ? `Question ${state.length} of ${state.length}` : `Question ${state.index + 1} of ${state.length}`;
       saveProgress();
     }
 
-    function markInteraction(q, value, ok) {
+    function markInteraction(q, value, result) {
       if (q.kind === "mc") {
         els.interactionWrap.querySelectorAll(".choice-btn").forEach(btn => {
           btn.disabled = true;
@@ -4427,62 +4762,99 @@
       }
       if (q.kind === "order") {
         els.interactionWrap.querySelectorAll("button").forEach(btn => btn.disabled = true);
+        els.interactionWrap.querySelectorAll(".answer-slot").forEach((slot, index) => {
+          const given = Array.isArray(value) ? value[index] : "";
+          slot.classList.add(key(given || "") === key(q.answer[index]) ? "correct" : "wrong");
+        });
       }
       if (q.kind === "match") {
-        els.interactionWrap.querySelectorAll("select").forEach(sel => { sel.disabled = true; sel.style.borderColor = key(sel.value) === key(q.answer[sel.dataset.left]) ? "#16803a" : "#c83232"; });
+        els.interactionWrap.querySelectorAll("select").forEach(sel => {
+          const correct = key(sel.value) === key(q.answer[sel.dataset.left]);
+          sel.disabled = true;
+          sel.style.borderColor = correct ? "#16803a" : "#c83232";
+          sel.setAttribute("aria-label", `${sel.dataset.left}: ${correct ? "correct" : `incorrect; correct match is ${q.answer[sel.dataset.left]}`}`);
+        });
       }
     }
 
-    function applyProgress(topic, ok) {
+    function applyProgress(topic, result, assisted, awarded) {
       const p = progress.topics[topic];
       p.total += 1;
       progress.lifetime.total += 1;
-      if (ok) {
+      p.pointsEarned += awarded;
+      p.pointsPossible += result.max;
+      progress.lifetime.pointsEarned += awarded;
+      progress.lifetime.pointsPossible += result.max;
+      if (result.fullyCorrect) {
         p.correct += 1;
         progress.lifetime.correct += 1;
-        p.wrongStreak = 0;
-        p.streak += 1;
-        p.bestStreak = Math.max(p.bestStreak, p.streak);
-        if (p.streak >= 2) { p.level = clamp(p.level + 1, 1, 5); p.streak = 0; }
-      } else {
-        p.streak = 0;
-        p.wrongStreak = (p.wrongStreak || 0) + 1;
-        if (p.wrongStreak >= 2) { p.level = clamp(p.level - 1, 1, 5); p.wrongStreak = 0; }
+      }
+      if (assisted) {
+        p.assisted += 1;
+        progress.lifetime.assisted += 1;
+        return;
+      }
+      p.independentEvidence.push(result.ratio);
+      p.independentEvidence = p.independentEvidence.slice(-10);
+      if (p.independentEvidence.length < 6) return;
+      const average = p.independentEvidence.reduce((sum, score) => sum + score, 0) / p.independentEvidence.length;
+      if (average >= 0.82 && p.level < 5) {
+        p.level += 1;
+        p.independentEvidence = [];
+      } else if (average <= 0.45 && p.level > 1) {
+        p.level -= 1;
+        p.independentEvidence = [];
       }
     }
 
-    function showFeedback(ok, value) {
+    function showFeedback(result, value, awarded) {
       const q = state.currentQuestion;
-      const chosen = fmtAnswer(value || "No answer selected");
+      const chosen = fmtAnswer(value == null || value === "" ? "No answer selected" : value);
       const correct = fmtAnswer(q.answer);
       const why = q.wrongTip || q.explanation || "Check the relationship, pattern or clue carefully before choosing.";
-      els.feedbackPanel.className = `feedback-panel ${ok ? "good" : "bad"}`;
-      els.feedbackPanel.innerHTML = ok
-        ? `<strong>Correct!</strong><span>${escapeHtml(q.explanation)}</span>`
-        : `<strong>Not quite.</strong><span>Your answer: <strong>${escapeHtml(chosen)}</strong></span><span>Correct answer: <strong>${escapeHtml(correct)}</strong></span><span>Why: ${escapeHtml(why)}</span>`;
+      const heading = result.fullyCorrect ? (state.hintUsed ? "Correct with a hint" : "Correct!") : result.earned ? "Partly correct" : "Not quite";
+      const scoreLine = state.hintUsed
+        ? `${displayPoints(awarded)} of ${displayPoints(result.max)} points awarded because a hint was used.`
+        : `${displayPoints(result.earned)} of ${displayPoints(result.max)} points.`;
+      els.feedbackPanel.className = `feedback-panel ${result.fullyCorrect ? "good" : "bad"}`;
+      els.feedbackPanel.innerHTML = `<strong>${escapeHtml(heading)}</strong><span>${escapeHtml(scoreLine)}</span>${result.fullyCorrect ? "" : `<span>Your answer: <strong>${escapeHtml(chosen)}</strong></span><span>Correct answer: <strong>${escapeHtml(correct)}</strong></span>`}<span>Why: ${escapeHtml(why)}</span>`;
       els.feedbackPanel.classList.remove("hidden");
     }
 
     function showHint() {
       if (state.answered || !state.currentQuestion) return;
+      state.hintUsed = true;
+      els.hintBtn.textContent = "Hint shown";
+      els.hintBtn.disabled = true;
       els.feedbackPanel.className = "feedback-panel hint";
-      els.feedbackPanel.innerHTML = `<strong>Hint</strong>${escapeHtml(state.currentQuestion.hint)}`;
+      els.feedbackPanel.innerHTML = `<strong>Hint</strong><span>${escapeHtml(state.currentQuestion.hint)}</span><span>A correct answer after using a hint earns half points and does not raise the adaptive challenge.</span>`;
       els.feedbackPanel.classList.remove("hidden");
     }
 
     function showResults() {
+      els.practiceIntro.classList.add("hidden");
       els.quizScreen.classList.add("hidden");
       els.resultsScreen.classList.remove("hidden");
-      els.finalScore.textContent = `${state.score}/${state.length}`;
-      const pct = Math.round(100 * state.score / state.length);
-      els.finalMessage.textContent = pct >= 85 ? "Excellent verbal reasoning!" : pct >= 65 ? "Good progress — keep practising the tricky topics." : "Keep going — review the feedback and try another round.";
-      const rows = state.history.map((h, i) => `<tr><td>${i+1}</td><td>${escapeHtml(TOPICS[h.topic].name)}</td><td>${escapeHtml(h.title)}</td><td>${h.correct ? "✅" : "❌"}</td><td>${escapeHtml(h.given)}</td><td>${escapeHtml(h.answer)}</td><td>${escapeHtml(h.explanation)}</td></tr>`).join("");
-      els.reviewWrap.innerHTML = `<table class="review-table"><thead><tr><th>#</th><th>Topic</th><th>Type</th><th>Result</th><th>Your answer</th><th>Correct answer</th><th>Feedback</th></tr></thead><tbody>${rows}</tbody></table>`;
+      els.finalScore.textContent = `${displayPoints(state.pointsEarned)}/${displayPoints(state.pointsPossible)} points`;
+      const pct = state.pointsPossible ? Math.round(100 * state.pointsEarned / state.pointsPossible) : 0;
+      els.finalMessage.textContent = pct >= 85 ? "Strong independent practice." : pct >= 65 ? "Good progress — review the questions that cost points." : "Keep practising — the review below shows what to revisit.";
+      const fullyCorrect = state.history.filter(item => item.correct).length;
+      els.resultDetail.textContent = `${fullyCorrect} of ${state.length} questions were fully correct. ${state.assistedCount} ${state.assistedCount === 1 ? "answer was" : "answers were"} assisted. This is a raw practice result, not a standardised score or an admissions prediction.`;
+      const rows = state.history.map((h, i) => `<tr><td>${i+1}</td><td>${escapeHtml(TOPICS[h.topic].name)}</td><td>${escapeHtml(publicQuestionTitle(h.title))}</td><td>${escapeHtml(`${displayPoints(h.awarded)}/${displayPoints(h.max)}${h.assisted ? " assisted" : ""}`)}</td><td>${escapeHtml(h.given)}</td><td>${escapeHtml(h.answer)}</td><td>${escapeHtml(h.explanation)}</td></tr>`).join("");
+      els.reviewWrap.innerHTML = `<table class="review-table"><caption class="sr-only">Question-by-question practice review</caption><thead><tr><th scope="col">#</th><th scope="col">Topic</th><th scope="col">Type</th><th scope="col">Points</th><th scope="col">Your answer</th><th scope="col">Correct answer</th><th scope="col">Feedback</th></tr></thead><tbody>${rows}</tbody></table>`;
+      const missed = state.history.filter(item => item.earned < item.max || item.assisted);
+      els.retryMissedBtn.classList.toggle("hidden", missed.length === 0);
+      els.retryMissedBtn.onclick = () => startRound(state.topic || "mixed", missed.map(item => item.question));
+      setTimeout(() => els.resultsScreen.focus(), 0);
     }
 
     els.hintBtn.addEventListener("click", showHint);
     els.nextBtn.addEventListener("click", nextQuestion);
-    els.backBtn.addEventListener("click", renderHome);
+    function leaveRound() {
+      if (state.index < state.length && (state.index > 0 || state.currentQuestion) && !confirm("Leave this round? Your completed answers are saved, but the unfinished round will end.")) return;
+      renderHome();
+    }
+    els.backBtn.addEventListener("click", leaveRound);
     els.homeBtn.addEventListener("click", renderHome);
     els.playAgainBtn.addEventListener("click", () => startRound(state.topic || "mixed"));
     els.resetProgressBtn.addEventListener("click", () => {
