@@ -1,0 +1,1127 @@
+
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>11+ Verbal Reasoning Practice Quest — Preview</title>
+  <style>
+    :root {
+      --ink: #17314f;
+      --muted: #5a6c82;
+      --panel: #ffffff;
+      --soft: #f2f7ff;
+      --accent: #6f42c1;
+      --accent-2: #ffb703;
+      --good: #16803a;
+      --bad: #c83232;
+      --line: #d8e4f5;
+      --shadow: 0 16px 40px rgba(23, 49, 79, 0.14);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(111,66,193,.14), transparent 34rem),
+        radial-gradient(circle at 86% 8%, rgba(255,183,3,.18), transparent 28rem),
+        linear-gradient(180deg, #fbf9ff 0%, #eef6ff 100%);
+      min-height: 100vh;
+    }
+
+    .app {
+      width: min(1160px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 28px 0 42px;
+    }
+
+    header.hero {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 20px;
+      align-items: center;
+      padding: 24px;
+      border-radius: 28px;
+      background: rgba(255,255,255,.86);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(216, 228, 245, .9);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 4vw, 3.05rem);
+      letter-spacing: -0.04em;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.45;
+    }
+
+    .intro-panel {
+      margin: 18px 0 0;
+      padding: 16px 18px;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.9);
+      color: var(--muted);
+      line-height: 1.5;
+      box-shadow: 0 8px 22px rgba(23,49,79,.08);
+    }
+
+    .intro-panel strong { color: var(--ink); }
+
+    .sr-only {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    .mascot {
+      width: 110px;
+      height: 110px;
+      border-radius: 30px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, #f2e7ff, #fff1bd);
+      font-size: 3rem;
+      box-shadow: inset 0 0 0 3px rgba(255,255,255,.75);
+    }
+
+    .toolbar {
+      margin-top: 18px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .pill, select, button {
+      font: inherit;
+    }
+
+    .pill {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 10px 14px;
+      box-shadow: 0 6px 18px rgba(23,49,79,.08);
+      color: var(--muted);
+    }
+
+    select {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 9px 12px;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    .screen { margin-top: 22px; }
+    .hidden { display: none !important; }
+
+    .topic-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(238px, 1fr));
+      gap: 16px;
+    }
+
+    .topic-card {
+      background: var(--panel);
+      color: var(--ink);
+      text-align: left;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 19px;
+      box-shadow: 0 10px 26px rgba(23,49,79,.10);
+      cursor: pointer;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+      min-height: 174px;
+      display: grid;
+      align-content: space-between;
+      gap: 14px;
+    }
+
+    .topic-card:hover, .topic-card:focus-visible {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow);
+      border-color: rgba(111,66,193,.45);
+    }
+
+    .topic-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: var(--soft);
+      font-size: 1.55rem;
+      margin-bottom: 10px;
+    }
+
+    .topic-main,
+    .topic-name,
+    .topic-blurb {
+      display: block;
+    }
+
+    .topic-name {
+      margin: 0 0 7px;
+      color: var(--ink);
+      font-size: 1.2rem;
+      font-weight: 900;
+    }
+
+    .topic-blurb {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.35;
+      font-size: .96rem;
+    }
+
+    .mini-stats {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .quiz-shell { display: grid; gap: 16px; }
+
+    .quiz-top, .question-panel, .feedback-panel, .results-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .quiz-top {
+      padding: 17px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .quiz-title {
+      font-size: 1.22rem;
+      font-weight: 900;
+    }
+
+    .score-strip {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: var(--muted);
+    }
+
+    .meter {
+      width: 100%;
+      height: 14px;
+      background: #e7effb;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid #d8e4f5;
+    }
+
+    .meter-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), #b18cff);
+      transition: width .25s ease;
+    }
+
+    .question-panel { padding: clamp(18px, 3vw, 28px); }
+
+    .tag-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .tag {
+      border-radius: 999px;
+      padding: 7px 11px;
+      background: var(--soft);
+      color: var(--muted);
+      font-size: .92rem;
+      border: 1px solid var(--line);
+    }
+
+    .question-text {
+      font-size: clamp(1.17rem, 2vw, 1.45rem);
+      line-height: 1.5;
+      font-weight: 900;
+      margin: 0 0 18px;
+      max-width: 52rem;
+    }
+
+    .sentence-break {
+      display: block;
+      height: .7em;
+    }
+
+    .stimulus-wrap {
+      display: grid;
+      gap: 8px;
+      margin: 8px 0 10px;
+    }
+
+    .stimulus-wrap:empty { display: none; }
+
+    .vr-card, .diagram, .code-table, .sequence-strip, .word-bank, .match-card, .select-area {
+      max-width: min(100%, 560px);
+      margin: 0 auto;
+      background: #fbfdff;
+      border: 1px solid #dfe9f7;
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    .diagram svg {
+      display: block;
+      max-width: 100%;
+      max-height: 220px;
+      margin: 0 auto;
+    }
+
+    .alphabet-diagram { overflow-x: auto; }
+    .alphabet-diagram svg { min-width: 620px; max-width: none; }
+
+    .code-table table, .review-table, .match-card table {
+      border-collapse: collapse;
+      width: 100%;
+      background: white;
+    }
+
+    .code-table th, .code-table td, .match-card th, .match-card td, .review-table th, .review-table td {
+      padding: 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .code-table th, .match-card th, .review-table th { background: var(--soft); }
+
+    .sequence-strip, .word-bank {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 1.15rem;
+      font-weight: 900;
+    }
+
+    .seq-token, .word-token {
+      border: 1px solid #cbdcf2;
+      background: white;
+      border-radius: 12px;
+      padding: 9px 12px;
+      min-width: 42px;
+      text-align: center;
+    }
+
+    .choices, .multi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 16px;
+      padding: 13px 17px;
+      background: var(--accent);
+      color: white;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+      box-shadow: 0 9px 18px rgba(111,66,193,.22);
+    }
+
+    button:hover:not(:disabled), button:focus-visible:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 13px 24px rgba(111,66,193,.26);
+    }
+
+    button:focus-visible, select:focus-visible {
+      outline: 3px solid #17314f;
+      outline-offset: 3px;
+    }
+
+    button:disabled { opacity: .55; cursor: not-allowed; }
+
+    .choice-btn, .tile-btn, .multi-btn {
+      background: #fff;
+      color: var(--ink);
+      text-align: left;
+      border: 2px solid var(--line);
+      box-shadow: 0 7px 18px rgba(23,49,79,.08);
+      min-height: 56px;
+    }
+
+    .choice-btn.correct, .multi-btn.correct, .tile-btn.correct {
+      border-color: rgba(22,128,58,.85);
+      background: #edf9f0;
+    }
+
+    .choice-btn.wrong, .multi-btn.wrong, .tile-btn.wrong {
+      border-color: rgba(200,50,50,.85);
+      background: #fff0f0;
+    }
+
+    .choice-btn.selected, .multi-btn.selected, .tile-btn.selected {
+      border-color: rgba(111,66,193,.75);
+      background: #f3ecff;
+    }
+
+    .answer-slot.correct { border-color: var(--good); background: #edf9f0; }
+    .answer-slot.wrong { border-color: var(--bad); background: #fff0f0; }
+
+    .order-board {
+      display: grid;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .tile-row, .answer-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      min-height: 54px;
+    }
+
+    .answer-row {
+      border: 2px dashed #cbdcf2;
+      border-radius: 16px;
+      padding: 10px;
+      background: #fbfdff;
+    }
+
+    .answer-slot {
+      min-width: 46px;
+      min-height: 42px;
+      border-radius: 12px;
+      border: 1px solid #cbdcf2;
+      display: grid;
+      place-items: center;
+      background: white;
+      color: var(--ink);
+      font-weight: 900;
+    }
+
+    .tile-btn { min-width: 52px; text-align: center; }
+
+    .match-card select {
+      width: 100%;
+      border-radius: 12px;
+      padding: 8px 10px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .secondary {
+      background: #eef4ff;
+      color: var(--ink);
+      box-shadow: none;
+      border: 1px solid var(--line);
+    }
+
+    .gold {
+      background: var(--accent-2);
+      color: #412b00;
+      box-shadow: 0 9px 18px rgba(255,183,3,.22);
+    }
+
+    .feedback-panel {
+      padding: 18px 20px;
+      line-height: 1.5;
+    }
+
+    .feedback-panel.good { border-color: rgba(22,128,58,.55); background: #f2fff5; }
+    .feedback-panel.bad { border-color: rgba(200,50,50,.55); background: #fff6f6; }
+    .feedback-panel.hint { border-color: rgba(255,183,3,.55); background: #fffaf0; }
+
+    .feedback-panel strong { display: block; margin-bottom: 4px; }
+    .feedback-panel span { display: block; margin-top: 4px; }
+    .small-note { margin-top: 6px; text-align: center; color: var(--muted); font-size: .92rem; }
+
+    .result-detail {
+      max-width: 48rem;
+      margin: 0 auto 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .results-panel {
+      padding: clamp(22px, 4vw, 36px);
+      text-align: center;
+    }
+
+    .big-score {
+      font-size: clamp(2.2rem, 6vw, 4.3rem);
+      font-weight: 900;
+      letter-spacing: -.05em;
+      margin: 10px 0;
+    }
+
+    .review-wrap {
+      overflow-x: auto;
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      text-align: left;
+    }
+
+    @media (max-width: 680px) {
+      header.hero { grid-template-columns: 1fr; }
+      .mascot { width: 82px; height: 82px; font-size: 2.4rem; }
+      .app { width: min(100% - 18px, 1160px); padding-top: 12px; }
+      .choices, .multi-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+
+  /* Preview-only controls; the original visual theme is retained above. */
+  .preview-badge { display:inline-block; margin:0 0 9px; border:1px solid #9b7bc6; border-radius:999px; padding:5px 11px; background:#f3ecff; color:#4b2c7a; font-size:.85rem; font-weight:900; }
+  .preview-locked { background:#edf0f5!important; color:#596477!important; border:1px solid #c3cbd6; box-shadow:none!important; cursor:not-allowed!important; }
+  .preview-control { cursor:pointer; }
+  .preview-control select { pointer-events:none; opacity:.78; max-width:100%; }
+  .preview-control:focus-visible { outline:3px solid var(--ink); outline-offset:3px; }
+  .quiz-shell, .quiz-shell > *, .stimulus-wrap, .match-card, #interactionWrap { min-width:0; max-width:100%; }
+  .code-table,.match-card { overflow-x:auto; }
+  .preview-dialog { width:min(460px,calc(100% - 28px)); max-height:calc(100vh - 32px); overflow:auto; border:1px solid var(--line); border-radius:22px; padding:24px; background:var(--panel); color:var(--ink); box-shadow:var(--shadow); font:inherit; }
+  .preview-dialog::backdrop { background:rgba(23,49,79,.52); }
+  .preview-dialog h2 { margin:0 0 10px; font-size:1.4rem; }
+  .preview-dialog p { margin:0; line-height:1.5; color:var(--muted); }
+  .preview-dialog .actions { justify-content:flex-end; }
+  .preview-print-note { display:none; }
+  @media(max-width:520px) {
+    .toolbar .pill { display:flex; align-items:center; flex-wrap:wrap; gap:7px; width:100%; border-radius:18px; }
+    .toolbar .pill select { flex:1; min-width:0; }
+    .topic-grid { grid-template-columns:minmax(0,1fr); }
+    .vr-card, .word-bank,.code-table,.match-card { max-width:100%; overflow-wrap:anywhere; }
+    .question-panel .actions > button { flex:1 1 130px; }
+    .match-card { width:100%; padding:7px; }
+    .match-card th, .match-card td { padding:7px; }
+    .match-card select { min-width:0; max-width:100%; }
+    .review-wrap { max-width:100%; }
+  }
+  @media print { body > * { display:none!important; } body > .preview-print-note { display:block!important; color:#000; background:#fff; padding:24px; font:16px Arial,sans-serif; } }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="hero">
+      <div>
+        <span class="preview-badge">Preview only</span><h1 id="homeHeading" tabindex="-1">11+ Verbal Reasoning Practice Quest</h1>
+        <p class="subtitle">Explore five fixed sample activities in each topic, with answers, hints and feedback.</p>
+      </div>
+      <div class="mascot" aria-hidden="true">🧩</div>
+    </header>
+
+    <div class="intro-panel" id="practiceIntro">
+      <strong>Try the preview:</strong> each section contains five fixed sample activities. The questions and answer options stay the same each time. Matching and ordering earn points for correct parts; using a hint halves the points earned. Full practice and saved progress are not available in this preview.<span id="storageStatus" role="status" aria-live="polite"></span>
+    </div>
+
+    <section class="toolbar" id="homeToolbar">
+      <label class="pill">Questions per round
+        <select id="sessionLength" aria-label="Questions per round" disabled tabindex="-1">
+          <option value="5" selected>5 — preview</option>
+          <option value="10">10</option>
+          <option value="15">15</option>
+          <option value="20">20</option>
+          <option value="30">30</option>
+        </select>
+      </label>
+      <button class="secondary" id="resetProgressBtn" type="button">Reset progress</button>
+    </section>
+
+    <section class="screen" id="homeScreen">
+      <div class="topic-grid" id="topicGrid"></div>
+    </section>
+
+    <section class="screen hidden" id="quizScreen">
+      <div class="quiz-shell">
+        <div class="quiz-top">
+          <div class="top-row">
+            <div class="quiz-title" id="quizTitle">Topic</div>
+            <div class="score-strip">
+              <span id="scoreText">Score 0</span>
+              <span id="questionCountText">Question 1</span>
+              <span id="levelText">Preview only</span>
+            </div>
+          </div>
+          <div class="meter" id="progressMeter" role="progressbar" aria-label="Round progress" aria-valuemin="0" aria-valuemax="5" aria-valuenow="0"><div class="meter-fill" id="progressFill"></div></div>
+        </div>
+
+        <article class="question-panel" id="questionPanel" tabindex="-1" aria-labelledby="questionText">
+          <div class="tag-row" id="tagRow"></div>
+          <h2 class="question-text" id="questionText"></h2>
+          <div class="stimulus-wrap" id="stimulusWrap"></div>
+          <div id="interactionWrap"></div>
+          <div class="actions">
+            <button class="gold" id="hintBtn" type="button">Show hint</button>
+            <button id="checkBtn" type="button" class="hidden">Check answer</button>
+            <button class="secondary hidden" id="nextBtn" type="button">Next question</button>
+            <button class="secondary" id="backBtn" type="button">Choose topic</button>
+          </div>
+        </article>
+
+        <div class="feedback-panel hidden" id="feedbackPanel" role="status" aria-live="polite"></div>
+      </div>
+    </section>
+
+    <section class="screen hidden" id="resultsScreen" tabindex="-1" aria-labelledby="resultsHeading">
+      <div class="results-panel">
+        <h2 id="resultsHeading">Sample complete!</h2>
+        <div class="big-score" id="finalScore">0/0</div>
+        <p id="finalMessage"></p>
+        <p class="result-detail" id="resultDetail"></p>
+        <div class="actions" style="justify-content:center">
+          <button id="playAgainBtn" type="button">Replay this sample</button>
+          <button class="gold hidden" id="retryMissedBtn" type="button">Practise missed questions</button>
+          <button class="secondary" id="homeBtn" type="button">Choose another topic</button>
+        </div>
+        <div class="review-wrap" id="reviewWrap"></div>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="preview-dialog" id="previewDialog" aria-labelledby="previewDialogTitle" aria-describedby="previewDialogText">
+    <h2 id="previewDialogTitle">Preview only</h2><p id="previewDialogText"></p>
+    <div class="actions"><button class="secondary hidden" id="previewDialogCancel" type="button">Keep practising</button><button id="previewDialogOk" type="button">Continue preview</button></div>
+  </dialog>
+  <div class="preview-print-note">Preview only. Printing and PDF reports are not available in this sample.</div>
+  <noscript><p class="intro-panel">Enable JavaScript to try the fixed sample questions.</p></noscript>
+<script>
+"use strict";
+(()=>{
+const TOPICS = {
+      vocab: { name: "Vocabulary & Word Meanings", icon: "📚", blurb: "Synonyms, antonyms, homophones, word meanings, prefixes and precise vocabulary." },
+      analogies: { name: "Analogies & Relationships", icon: "🔗", blurb: "Word pairs, part-whole links, opposites, functions, categories and relationships." },
+      classification: { name: "Odd One Out & Categories", icon: "🧠", blurb: "Find the word that does not belong, choose matching groups, and spot shared features." },
+      compounds: { name: "Compound Words & Word Pairs", icon: "🧱", blurb: "Build compound words, find shared words, and match word halves." },
+      codes: { name: "Letter Codes", icon: "🔐", blurb: "Alphabet positions, shifting letters, reverse alphabet, coded words and code tables." },
+      sequences: { name: "Letter & Number Sequences", icon: "➡️", blurb: "Alphabet patterns, alternating sequences, word order, numbered letters and missing terms." },
+      wordplay: { name: "Hidden Words & Anagrams", icon: "🔎", blurb: "Anagrams, hidden words, letter removal, alphabet order and word construction." },
+      logic: { name: "Logic & Deduction", icon: "♟️", blurb: "Ordering clues, statements, matching puzzles, following instructions and conclusions." },
+      mixed: { name: "Mixed Practice", icon: "⭐", blurb: "A balanced round across the verbal reasoning skills included in this practice activity." }
+    };
+
+const ACTIVE_TOPICS = Object.keys(TOPICS).filter(t => t !== "mixed");
+
+const els = {
+      topicGrid: document.getElementById("topicGrid"),
+      homeScreen: document.getElementById("homeScreen"),
+      quizScreen: document.getElementById("quizScreen"),
+      resultsScreen: document.getElementById("resultsScreen"),
+      homeToolbar: document.getElementById("homeToolbar"),
+      practiceIntro: document.getElementById("practiceIntro"),
+      storageStatus: document.getElementById("storageStatus"),
+      sessionLength: document.getElementById("sessionLength"),
+      resetProgressBtn: document.getElementById("resetProgressBtn"),
+      quizTitle: document.getElementById("quizTitle"),
+      scoreText: document.getElementById("scoreText"),
+      questionCountText: document.getElementById("questionCountText"),
+      levelText: document.getElementById("levelText"),
+      progressMeter: document.getElementById("progressMeter"),
+      progressFill: document.getElementById("progressFill"),
+      questionPanel: document.getElementById("questionPanel"),
+      tagRow: document.getElementById("tagRow"),
+      questionText: document.getElementById("questionText"),
+      stimulusWrap: document.getElementById("stimulusWrap"),
+      interactionWrap: document.getElementById("interactionWrap"),
+      hintBtn: document.getElementById("hintBtn"),
+      checkBtn: document.getElementById("checkBtn"),
+      nextBtn: document.getElementById("nextBtn"),
+      backBtn: document.getElementById("backBtn"),
+      feedbackPanel: document.getElementById("feedbackPanel"),
+      finalScore: document.getElementById("finalScore"),
+      finalMessage: document.getElementById("finalMessage"),
+      resultDetail: document.getElementById("resultDetail"),
+      playAgainBtn: document.getElementById("playAgainBtn"),
+      retryMissedBtn: document.getElementById("retryMissedBtn"),
+      homeBtn: document.getElementById("homeBtn"),
+      reviewWrap: document.getElementById("reviewWrap")
+    };
+
+function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c])); }
+
+function tidy(s) { return String(s).trim().toLowerCase().replace(/\s+/g, " "); }
+
+function key(s) { return tidy(s).replace(/[.,;:!?()]/g, ""); }
+
+function displayPoints(value) { return Number.isInteger(value) ? String(value) : Number(value).toFixed(1); }
+
+function publicQuestionTitle(title) {
+      const clean = String(title || "").replace(/^(?:Additional|Further|Final)\s+/i, "").trim();
+      return clean ? clean.charAt(0).toUpperCase() + clean.slice(1) : "Verbal reasoning";
+    }
+
+function formatQuestionText(prompt) {
+      return escapeHtml(prompt).replace(/\.\s+(?=\S)/g, '.<span class="sentence-break" aria-hidden="true"></span>');
+    }
+
+function unique(arr, keyFn = x => String(x).toLowerCase()) {
+      const seen = new Set();
+      const out = [];
+      arr.forEach(x => { const k = keyFn(x); if (!seen.has(k)) { seen.add(k); out.push(x); } });
+      return out;
+    }
+
+function fmtAnswer(v) {
+      if (Array.isArray(v)) return v.join(" → ");
+      if (v && typeof v === "object") return Object.entries(v).map(([a,b]) => `${a} → ${b}`).join("; ");
+      return String(v);
+    }
+
+function renderQuestion() {
+      const q = state.currentQuestion;
+      const topicName = TOPICS[q.topic].name;
+      els.quizTitle.textContent = state.topic === "mixed" ? "Mixed Practice" : topicName;
+      els.scoreText.textContent = `Points ${displayPoints(state.pointsEarned)}/${displayPoints(state.pointsPossible)}`;
+      els.questionCountText.textContent = `Question ${state.index + 1} of ${state.length}`;
+      els.levelText.textContent = "Preview only";
+      els.progressFill.style.width = `${(state.index / state.length) * 100}%`;
+      els.progressMeter.setAttribute("aria-valuemax", String(state.length));
+      els.progressMeter.setAttribute("aria-valuenow", String(state.index));
+      els.tagRow.innerHTML = `<span class="tag">${escapeHtml(topicName)}</span><span class="tag">${escapeHtml(publicQuestionTitle(q.title))}</span>`;
+      els.questionText.innerHTML = formatQuestionText(q.prompt);
+      els.stimulusWrap.innerHTML = q.stimulus || "";
+      els.feedbackPanel.className = "feedback-panel hidden";
+      els.feedbackPanel.innerHTML = "";
+      els.nextBtn.classList.add("hidden");
+      els.checkBtn.classList.add("hidden");
+      els.hintBtn.disabled = false;
+      els.hintBtn.textContent = "Show hint";
+      els.interactionWrap.innerHTML = "";
+      if (q.kind === "mc") renderMC(q);
+      if (q.kind === "multi") renderMulti(q);
+      if (q.kind === "order") renderOrder(q);
+      if (q.kind === "match") renderMatch(q);
+      setTimeout(() => els.questionPanel.focus(), 0);
+    }
+
+function renderMC(q) {
+      const wrap = document.createElement("div");
+      wrap.className = "choices";
+      q.choices.forEach((choice, i) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "choice-btn";
+        btn.dataset.value = choice.value;
+        btn.setAttribute("aria-pressed", "false");
+        btn.innerHTML = `<strong>${String.fromCharCode(65+i)}.</strong> ${escapeHtml(choice.label)}`;
+        btn.addEventListener("click", () => {
+          if (state.answered) return;
+          state.mcSelected = choice.value;
+          wrap.querySelectorAll(".choice-btn").forEach(option => {
+            const selected = key(option.dataset.value) === key(choice.value);
+            option.classList.toggle("selected", selected);
+            option.setAttribute("aria-pressed", String(selected));
+          });
+        });
+        wrap.appendChild(btn);
+      });
+      els.interactionWrap.appendChild(wrap);
+      els.checkBtn.classList.remove("hidden");
+      els.checkBtn.onclick = () => {
+        if (state.mcSelected == null) {
+          els.feedbackPanel.className = "feedback-panel hint";
+          els.feedbackPanel.textContent = "Choose an answer before checking.";
+          els.feedbackPanel.classList.remove("hidden");
+          return;
+        }
+        submitAnswer(state.mcSelected);
+      };
+    }
+
+function renderMulti(q) {
+      const note = document.createElement("div");
+      note.className = "pill";
+      note.style.display = "inline-block";
+      note.textContent = `Select ${q.selectCount || q.answer.length} answer${(q.selectCount || q.answer.length) === 1 ? "" : "s"}.`;
+      const grid = document.createElement("div");
+      grid.className = "multi-grid";
+      q.choices.forEach(choice => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "multi-btn";
+        btn.dataset.value = choice.value;
+        btn.setAttribute("aria-pressed", "false");
+        btn.textContent = choice.label;
+        btn.addEventListener("click", () => {
+          if (state.answered) return;
+          const val = choice.value;
+          if (state.multiSelected.has(val)) {
+            state.multiSelected.delete(val);
+            btn.classList.remove("selected");
+            btn.setAttribute("aria-pressed", "false");
+          } else {
+            const limit = q.selectCount || q.answer.length;
+            if (state.multiSelected.size >= limit) return;
+            state.multiSelected.add(val);
+            btn.classList.add("selected");
+            btn.setAttribute("aria-pressed", "true");
+          }
+        });
+        grid.appendChild(btn);
+      });
+      els.interactionWrap.appendChild(note);
+      els.interactionWrap.appendChild(grid);
+      els.checkBtn.classList.remove("hidden");
+      els.checkBtn.onclick = () => submitAnswer(Array.from(state.multiSelected));
+    }
+
+function renderOrder(q) {
+      const board = document.createElement("div");
+      board.className = "order-board";
+      const answerRow = document.createElement("div");
+      answerRow.className = "answer-row";
+      answerRow.setAttribute("role", "group");
+      answerRow.setAttribute("aria-label", "Selected answer order");
+      const tileRow = document.createElement("div");
+      tileRow.className = "tile-row";
+      const tiles = q.tiles.map((label, idx) => ({ label, idx }));
+      function refreshAnswer() {
+        answerRow.innerHTML = "";
+        for (let i = 0; i < q.answer.length; i++) {
+          const slot = document.createElement("button");
+          slot.type = "button";
+          slot.className = "answer-slot";
+          const selected = state.orderSelected[i];
+          slot.textContent = selected ? selected.label : "";
+          slot.title = selected ? "Click to remove" : "Empty slot";
+          slot.setAttribute("aria-label", selected ? `Position ${i + 1}: ${selected.label}. Click to remove.` : `Position ${i + 1}: empty`);
+          slot.disabled = !selected || state.answered;
+          if (selected) slot.addEventListener("click", () => {
+            if (!state.answered) {
+              const removedIndex = selected.idx;
+              state.orderSelected.splice(i, 1);
+              renderTiles();
+              refreshAnswer();
+              tileRow.querySelector(`[data-tile-index="${removedIndex}"]`)?.focus();
+            }
+          });
+          answerRow.appendChild(slot);
+        }
+      }
+      function renderTiles() {
+        tileRow.innerHTML = "";
+        tiles.forEach(tile => {
+          const used = state.orderSelected.some(t => t.idx === tile.idx);
+          const btn = document.createElement("button");
+          btn.type = "button";
+            btn.className = "tile-btn";
+            btn.textContent = tile.label;
+            btn.dataset.tileIndex = String(tile.idx);
+            btn.setAttribute("aria-label", `${tile.label}${used ? ", already selected" : ", add to the next position"}`);
+          btn.disabled = used || state.answered;
+          if (used) btn.classList.add("selected");
+          btn.addEventListener("click", () => {
+            if (state.answered || state.orderSelected.length >= q.answer.length) return;
+            state.orderSelected.push(tile);
+            renderTiles();
+            refreshAnswer();
+            tileRow.querySelector("button:not(:disabled)")?.focus();
+          });
+          tileRow.appendChild(btn);
+        });
+      }
+      refreshAnswer();
+      renderTiles();
+      board.appendChild(answerRow);
+      board.appendChild(tileRow);
+      const reset = document.createElement("button");
+      reset.type = "button";
+      reset.className = "secondary";
+      reset.textContent = "Clear order";
+      reset.addEventListener("click", () => { if (!state.answered) { state.orderSelected = []; renderTiles(); refreshAnswer(); } });
+      board.appendChild(reset);
+      els.interactionWrap.appendChild(board);
+      els.checkBtn.classList.remove("hidden");
+      els.checkBtn.onclick = () => submitAnswer(state.orderSelected.map(t => t.label));
+    }
+
+function renderMatch(q) {
+      const card = document.createElement("div");
+      card.className = "match-card";
+      const options = q.options || unique(q.pairs.map(p => p.right));
+      card.innerHTML = `<table><thead><tr><th scope="col">Item</th><th scope="col">Match</th></tr></thead><tbody>${q.pairs.map((p,i) => `<tr><th scope="row">${escapeHtml(p.left)}</th><td><select data-left="${escapeHtml(p.left)}" aria-label="Match for ${escapeHtml(p.left)}"><option value="">Choose…</option>${options.map(o => `<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join("")}</select></td></tr>`).join("")}</tbody></table>`;
+      els.interactionWrap.appendChild(card);
+      els.checkBtn.classList.remove("hidden");
+      els.checkBtn.onclick = () => {
+        const ans = {};
+        card.querySelectorAll("select").forEach(sel => ans[sel.dataset.left] = sel.value);
+        submitAnswer(ans);
+      };
+    }
+
+function scoreQuestion(q, value) {
+      let earned = 0;
+      let max = 1;
+      if (q.kind === "multi") {
+        const answers = new Set(q.answer.map(key));
+        const selected = new Set((Array.isArray(value) ? value : []).map(key));
+        max = answers.size;
+        earned = [...answers].filter(answer => selected.has(answer)).length;
+      } else if (q.kind === "order") {
+        const given = Array.isArray(value) ? value : [];
+        max = q.answer.length;
+        earned = q.answer.reduce((total, answer, index) => total + (key(given[index] || "") === key(answer) ? 1 : 0), 0);
+      } else if (q.kind === "match") {
+        const answers = Object.entries(q.answer);
+        max = answers.length;
+        earned = answers.reduce((total, [left, answer]) => total + (key(value?.[left] || "") === key(answer) ? 1 : 0), 0);
+      } else {
+        earned = key(value) === key(q.answer) ? 1 : 0;
+      }
+      return { earned, max, ratio: max ? earned / max : 0, fullyCorrect: earned === max };
+    }
+
+function submitAnswer(value) {
+      if (state.answered) return;
+      const q = state.currentQuestion;
+      const result = scoreQuestion(q, value);
+      const awarded = state.hintUsed ? result.earned / 2 : result.earned;
+      state.answered = true;
+      state.index += 1;
+      if (result.fullyCorrect) state.score += 1;
+      state.pointsEarned += awarded;
+      state.pointsPossible += result.max;
+      if (state.hintUsed) state.assistedCount += 1;
+      applyProgress(q.topic, result, state.hintUsed, awarded);
+      markInteraction(q, value, result);
+      showFeedback(result, value, awarded);
+      state.history.push({
+        topic: q.topic, title: q.title, prompt: q.prompt, correct: result.fullyCorrect,
+        earned: result.earned, awarded, max: result.max, assisted: state.hintUsed,
+        given: fmtAnswer(value), answer: fmtAnswer(q.answer), explanation: q.explanation, question: q
+      });
+      els.nextBtn.textContent = state.index >= state.length ? "See results" : "Next question";
+      els.nextBtn.classList.remove("hidden");
+      els.nextBtn.focus();
+      els.checkBtn.classList.add("hidden");
+      els.hintBtn.disabled = true;
+      els.progressFill.style.width = `${(state.index / state.length) * 100}%`;
+      els.progressMeter.setAttribute("aria-valuenow", String(state.index));
+      els.scoreText.textContent = `Points ${displayPoints(state.pointsEarned)}/${displayPoints(state.pointsPossible)}`;
+      els.questionCountText.textContent = `Question ${state.index} of ${state.length}`;
+    }
+
+function markInteraction(q, value, result) {
+      if (q.kind === "mc") {
+        els.interactionWrap.querySelectorAll(".choice-btn").forEach(btn => {
+          btn.disabled = true;
+          if (key(btn.dataset.value) === key(q.answer)) btn.classList.add("correct");
+          else if (key(btn.dataset.value) === key(value)) btn.classList.add("wrong");
+        });
+      }
+      if (q.kind === "multi") {
+        const answers = new Set(q.answer.map(key));
+        const selected = new Set((Array.isArray(value) ? value : []).map(key));
+        els.interactionWrap.querySelectorAll(".multi-btn").forEach(btn => {
+          btn.disabled = true;
+          const k = key(btn.dataset.value);
+          if (answers.has(k)) btn.classList.add("correct");
+          else if (selected.has(k)) btn.classList.add("wrong");
+        });
+      }
+      if (q.kind === "order") {
+        els.interactionWrap.querySelectorAll("button").forEach(btn => btn.disabled = true);
+        els.interactionWrap.querySelectorAll(".answer-slot").forEach((slot, index) => {
+          const given = Array.isArray(value) ? value[index] : "";
+          slot.classList.add(key(given || "") === key(q.answer[index]) ? "correct" : "wrong");
+        });
+      }
+      if (q.kind === "match") {
+        els.interactionWrap.querySelectorAll("select").forEach(sel => {
+          const correct = key(sel.value) === key(q.answer[sel.dataset.left]);
+          sel.disabled = true;
+          sel.style.borderColor = correct ? "#16803a" : "#c83232";
+          sel.setAttribute("aria-label", `${sel.dataset.left}: ${correct ? "correct" : `incorrect; correct match is ${q.answer[sel.dataset.left]}`}`);
+        });
+      }
+    }
+
+function showFeedback(result, value, awarded) {
+      const q = state.currentQuestion;
+      const chosen = fmtAnswer(value == null || value === "" ? "No answer selected" : value);
+      const correct = fmtAnswer(q.answer);
+      const why = q.wrongTip || q.explanation || "Check the relationship, pattern or clue carefully before choosing.";
+      const heading = result.fullyCorrect ? (state.hintUsed ? "Correct with a hint" : "Correct!") : result.earned ? "Partly correct" : "Not quite";
+      const scoreLine = state.hintUsed
+        ? `${displayPoints(awarded)} of ${displayPoints(result.max)} points awarded because a hint was used.`
+        : `${displayPoints(result.earned)} of ${displayPoints(result.max)} points.`;
+      els.feedbackPanel.className = `feedback-panel ${result.fullyCorrect ? "good" : "bad"}`;
+      els.feedbackPanel.innerHTML = `<strong>${escapeHtml(heading)}</strong><span>${escapeHtml(scoreLine)}</span>${result.fullyCorrect ? "" : `<span>Your answer: <strong>${escapeHtml(chosen)}</strong></span><span>Correct answer: <strong>${escapeHtml(correct)}</strong></span>`}<span>Why: ${escapeHtml(why)}</span>`;
+      els.feedbackPanel.classList.remove("hidden");
+    }
+
+function showHint() {
+      if (state.answered || !state.currentQuestion) return;
+      state.hintUsed = true;
+      els.hintBtn.textContent = "Hint shown";
+      els.hintBtn.disabled = true;
+      els.feedbackPanel.className = "feedback-panel hint";
+      els.feedbackPanel.innerHTML = `<strong>Hint</strong><span>${escapeHtml(state.currentQuestion.hint)}</span><span>A correct answer after using a hint earns half points. This sample stays the same each time.</span>`;
+      els.feedbackPanel.classList.remove("hidden");
+    }
+
+function showResults() {
+      els.practiceIntro.classList.add("hidden");
+      els.quizScreen.classList.add("hidden");
+      els.resultsScreen.classList.remove("hidden");
+      els.finalScore.textContent = `${displayPoints(state.pointsEarned)}/${displayPoints(state.pointsPossible)} points`;
+      const pct = state.pointsPossible ? Math.round(100 * state.pointsEarned / state.pointsPossible) : 0;
+      els.finalMessage.textContent = pct >= 85 ? "Great work on this sample." : pct >= 65 ? "Good progress — review the questions that cost points." : "The review below explains the answers to this sample.";
+      const fullyCorrect = state.history.filter(item => item.correct).length;
+      els.resultDetail.textContent = `${fullyCorrect} of ${state.length} questions were fully correct. ${state.assistedCount} ${state.assistedCount === 1 ? "answer was" : "answers were"} assisted. These results describe this fixed preview only; they are not a standardised score or an admissions prediction.`;
+      const rows = state.history.map((h, i) => `<tr><td>${i+1}</td><td>${escapeHtml(TOPICS[h.topic].name)}</td><td>${escapeHtml(publicQuestionTitle(h.title))}</td><td>${escapeHtml(`${displayPoints(h.awarded)}/${displayPoints(h.max)}${h.assisted ? " assisted" : ""}`)}</td><td>${escapeHtml(h.given)}</td><td>${escapeHtml(h.answer)}</td><td>${escapeHtml(h.explanation)}</td></tr>`).join("");
+      els.reviewWrap.innerHTML = `<table class="review-table"><caption class="sr-only">Question-by-question practice review</caption><thead><tr><th scope="col">#</th><th scope="col">Topic</th><th scope="col">Type</th><th scope="col">Points</th><th scope="col">Your answer</th><th scope="col">Correct answer</th><th scope="col">Feedback</th></tr></thead><tbody>${rows}</tbody></table>`;
+      const missed = state.history.filter(item => item.earned < item.max || item.assisted);
+      els.retryMissedBtn.classList.toggle("hidden", missed.length === 0);
+      els.retryMissedBtn.onclick = () => unavailable("Targeted missed-question practice");
+      setTimeout(() => els.resultsScreen.focus(), 0);
+    }
+
+const SAMPLE_LENGTH = 5;
+const STATIC_SAMPLES = {"vocab":[{"topic":"vocab","title":"Synonyms","difficulty":3,"kind":"mc","prompt":"Choose the word closest in meaning to begin.","answer":"start","hint":"A synonym has a similar meaning.","explanation":"start is closest in meaning to begin.","choices":[{"value":"lend","label":"lend"},{"value":"start","label":"start"},{"value":"hide","label":"hide"},{"value":"finish","label":"finish"}],"id":"preview-vocab-1"},{"topic":"vocab","title":"Antonyms","difficulty":3,"kind":"mc","prompt":"Choose the word opposite in meaning to expand.","answer":"shrink","hint":"An antonym has the opposite meaning.","explanation":"shrink is the opposite of expand.","choices":[{"value":"grow","label":"grow"},{"value":"spread","label":"spread"},{"value":"open","label":"open"},{"value":"shrink","label":"shrink"}],"id":"preview-vocab-2"},{"topic":"vocab","title":"Meaning in context","difficulty":3,"kind":"mc","prompt":"In this sentence, what does brief mean?","answer":"short","hint":"Use the rest of the sentence to work out the meaning.","explanation":"In the sentence, brief means short.","stimulus":"\u003cdiv class=\"vr-card\">Nina gave a brief answer before the bell rang.\u003c/div>","choices":[{"value":"rude","label":"rude"},{"value":"complete","label":"complete"},{"value":"loud","label":"loud"},{"value":"short","label":"short"}],"id":"preview-vocab-3"},{"topic":"vocab","title":"Select the two closest meanings","difficulty":3,"kind":"multi","prompt":"Choose the two words that are closest in meaning.","answer":["quick","fast"],"hint":"You need two words that could almost replace one another in a sentence.","explanation":"quick and fast are closest in meaning.","choices":[{"value":"fast","label":"fast"},{"value":"wide","label":"wide"},{"value":"quick","label":"quick"},{"value":"observe","label":"observe"},{"value":"begin","label":"begin"}],"selectCount":2,"stimulus":"\u003cdiv class=\"word-bank\">\u003cspan class=\"word-token\">fast\u003c/span>\u003cspan class=\"word-token\">quick\u003c/span>\u003cspan class=\"word-token\">observe\u003c/span>\u003cspan class=\"word-token\">begin\u003c/span>\u003cspan class=\"word-token\">wide\u003c/span>\u003c/div>","id":"preview-vocab-4"},{"topic":"vocab","title":"Homophones and spelling choices","difficulty":3,"kind":"mc","prompt":"Choose the correct word to complete the sentence.","answer":"flour","hint":"Say the sentence in your head and check the meaning, not only the sound.","explanation":"The sentence needs flour.","stimulus":"\u003cdiv class=\"vr-card\">The baker needed more ___ for the bread dough.\u003c/div>","choices":[{"value":"flower","label":"flower"},{"value":"floor","label":"floor"},{"value":"flair","label":"flair"},{"value":"flour","label":"flour"}],"id":"preview-vocab-5"}],"analogies":[{"topic":"analogies","title":"Part and whole analogies","difficulty":3,"kind":"mc","prompt":"petal is to flower as branch is to _____.","answer":"tree","hint":"The first word is part of the second word.","explanation":"A petal is part of a flower; a branch is part of a tree.","choices":[{"value":"forest","label":"forest"},{"value":"leaf","label":"leaf"},{"value":"tree","label":"tree"},{"value":"root","label":"root"}],"id":"preview-analogies-1"},{"topic":"analogies","title":"Function analogies","difficulty":3,"kind":"mc","prompt":"thermometer is to measures temperature as clock is to _____.","answer":"measures time","hint":"Think about what each object is used for.","explanation":"A thermometer measures temperature; a clock measures time.","choices":[{"value":"measures time","label":"measures time"},{"value":"keeps money","label":"keeps money"},{"value":"draws maps","label":"draws maps"},{"value":"cooks food","label":"cooks food"}],"id":"preview-analogies-2"},{"topic":"analogies","title":"Category analogies","difficulty":3,"kind":"mc","prompt":"oak is to tree as sparrow is to _____.","answer":"bird","hint":"The second word names the type or group of the first word.","explanation":"oak is a type of tree; sparrow is a type of bird.","choices":[{"value":"nest","label":"nest"},{"value":"leaf","label":"leaf"},{"value":"bird","label":"bird"},{"value":"sky","label":"sky"}],"id":"preview-analogies-3"},{"topic":"analogies","title":"Material analogies","difficulty":3,"kind":"mc","prompt":"leather is to shoe as paper is to _____.","answer":"book","hint":"The first word is a material that can be used to make the second.","explanation":"shoe can be made from leather; book can be made from paper.","choices":[{"value":"book","label":"book"},{"value":"stone","label":"stone"},{"value":"river","label":"river"},{"value":"apple","label":"apple"}],"id":"preview-analogies-4"},{"topic":"analogies","title":"Word pair selection","difficulty":3,"kind":"mc","prompt":"Which pair has the relationship: same meaning?","answer":"big : large","hint":"Look for a pair that shows same meaning.","explanation":"big : large shows same meaning.","choices":[{"value":"hot : cold","label":"hot : cold"},{"value":"empty : full","label":"empty : full"},{"value":"big : large","label":"big : large"},{"value":"early : late","label":"early : late"}],"id":"preview-analogies-5"}],"classification":[{"topic":"classification","title":"Odd one out by category","difficulty":3,"kind":"mc","prompt":"Which word is the odd one out?","answer":"badger","hint":"Three words belong to the same general group.","explanation":"badger does not belong with the other three words.","stimulus":"\u003cdiv class=\"word-bank\">\u003cspan class=\"word-token\">calm\u003c/span>\u003cspan class=\"word-token\">excited\u003c/span>\u003cspan class=\"word-token\">badger\u003c/span>\u003cspan class=\"word-token\">joyful\u003c/span>\u003c/div>","choices":[{"value":"excited","label":"excited"},{"value":"calm","label":"calm"},{"value":"joyful","label":"joyful"},{"value":"badger","label":"badger"}],"id":"preview-classification-1"},{"topic":"classification","title":"Same group pair","difficulty":3,"kind":"multi","prompt":"Choose the two words that belong to the same group.","answer":["train","ferry"],"hint":"Only two words share the same category.","explanation":"train and ferry are both transport. Each remaining word comes from a different category.","choices":[{"value":"rabbit","label":"rabbit"},{"value":"train","label":"train"},{"value":"cotton","label":"cotton"},{"value":"ferry","label":"ferry"},{"value":"pencil","label":"pencil"}],"selectCount":2,"stimulus":"\u003cdiv class=\"word-bank\">\u003cspan class=\"word-token\">cotton\u003c/span>\u003cspan class=\"word-token\">train\u003c/span>\u003cspan class=\"word-token\">pencil\u003c/span>\u003cspan class=\"word-token\">ferry\u003c/span>\u003cspan class=\"word-token\">rabbit\u003c/span>\u003c/div>","id":"preview-classification-2"},{"topic":"classification","title":"Find the category","difficulty":3,"kind":"mc","prompt":"Which category best describes all of these words?","answer":"animals","hint":"Think of a heading that would fit every word shown.","explanation":"All the words shown are examples of animals.","stimulus":"\u003cdiv class=\"word-bank\">\u003cspan class=\"word-token\">fox\u003c/span>\u003cspan class=\"word-token\">badger\u003c/span>\u003cspan class=\"word-token\">swan\u003c/span>\u003cspan class=\"word-token\">horse\u003c/span>\u003c/div>","choices":[{"value":"materials","label":"materials"},{"value":"animals","label":"animals"},{"value":"buildings","label":"buildings"},{"value":"clothing","label":"clothing"}],"id":"preview-classification-3"},{"topic":"classification","title":"Letter feature classification","difficulty":3,"kind":"mc","prompt":"Three words contain double letters. Which word does not?","answer":"paper","hint":"Check the letters of each word carefully.","explanation":"paper is the word that does not contain double letters.","stimulus":"\u003cdiv class=\"word-bank\">\u003cspan class=\"word-token\">paper\u003c/span>\u003cspan class=\"word-token\">coffee\u003c/span>\u003cspan class=\"word-token\">rabbit\u003c/span>\u003cspan class=\"word-token\">letter\u003c/span>\u003c/div>","choices":[{"value":"letter","label":"letter"},{"value":"coffee","label":"coffee"},{"value":"paper","label":"paper"},{"value":"rabbit","label":"rabbit"}],"id":"preview-classification-4"},{"topic":"classification","title":"Match word to category","difficulty":3,"kind":"match","prompt":"Match each word to its category.","answer":{"hammer":"tools","coat":"clothing","station":"buildings","glass":"materials"},"hint":"Use each category once.","explanation":"Each word has been matched to its general group.","pairs":[{"left":"hammer","right":"tools"},{"left":"coat","right":"clothing"},{"left":"station","right":"buildings"},{"left":"glass","right":"materials"}],"options":["tools","clothing","buildings","materials"],"id":"preview-classification-5"}],"compounds":[{"topic":"compounds","title":"Complete the compound word","difficulty":3,"kind":"mc","prompt":"Choose the word that goes before bird to make the compound meaning “a common dark-feathered bird”.","answer":"black","hint":"Use both the word ending and the definition. More than one combination may be a word, but only one matches the definition.","explanation":"black + bird makes blackbird, meaning a common dark-feathered bird.","choices":[{"value":"hair","label":"hair"},{"value":"note","label":"note"},{"value":"black","label":"black"},{"value":"moon","label":"moon"}],"id":"preview-compounds-1"},{"topic":"compounds","title":"Shared word before","difficulty":3,"kind":"mc","prompt":"Which word can go before both shelf and case to make compound words?","answer":"book","hint":"Try each option before both words.","explanation":"bookshelf and bookcase are compound words.","choices":[{"value":"sea","label":"sea"},{"value":"door","label":"door"},{"value":"rain","label":"rain"},{"value":"book","label":"book"}],"id":"preview-compounds-2"},{"topic":"compounds","title":"Shared word after","difficulty":3,"kind":"mc","prompt":"Which word can go after both button and key to make compound words?","answer":"hole","hint":"Try each option after both words.","explanation":"buttonhole and keyhole are compound words.","choices":[{"value":"fly","label":"fly"},{"value":"room","label":"room"},{"value":"bow","label":"bow"},{"value":"hole","label":"hole"}],"id":"preview-compounds-3"},{"topic":"compounds","title":"Match compound halves","difficulty":3,"kind":"match","prompt":"Match each first half to a second half to make compound words.","answer":{"note":"book","wheel":"chair","fire":"work","rain":"bow"},"hint":"Each first half should make a familiar compound word with one ending.","explanation":"notebook, wheelchair, firework, rainbow are compound words.","pairs":[{"left":"note","right":"book"},{"left":"wheel","right":"chair"},{"left":"fire","right":"work"},{"left":"rain","right":"bow"}],"options":["book","chair","bow","work"],"id":"preview-compounds-4"},{"topic":"compounds","title":"Order compound halves","difficulty":3,"kind":"order","prompt":"Put the two tiles in the correct order to make a compound word.","answer":["butter","fly"],"hint":"Think which order makes the familiar word.","explanation":"The correct word is butterfly.","tiles":["fly","butter"],"stimulus":"\u003cdiv class=\"word-bank\">\u003cspan class=\"word-token\">fly\u003c/span>\u003cspan class=\"word-token\">butter\u003c/span>\u003c/div>","id":"preview-compounds-5"}],"codes":[{"topic":"codes","title":"Alphabet position","difficulty":3,"kind":"mc","prompt":"What is the position of Z in the alphabet?","answer":"26","hint":"A is 1, B is 2, C is 3, and so on.","explanation":"Z is letter number 26.","stimulus":"","choices":[{"value":"26","label":"26"},{"value":"25","label":"25"},{"value":"27","label":"27"},{"value":"1","label":"1"}],"id":"preview-codes-1"},{"topic":"codes","title":"Shifted word codes","difficulty":3,"kind":"mc","prompt":"In a code, each letter moves 1 place forwards in the alphabet. What is the code for TREE?","answer":"USFF","hint":"Move every letter 1 step forwards.","explanation":"TREE becomes USFF.","stimulus":"\u003cdiv class=\"diagram alphabet-diagram\">\u003csvg viewBox=\"0 0 650 110\" role=\"img\" aria-label=\"Alphabet strip\">\u003crect x=\"16\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"27\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">A\u003c/text>\u003ctext x=\"27\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">1\u003c/text>\u003crect x=\"40\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"51\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">B\u003c/text>\u003ctext x=\"51\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">2\u003c/text>\u003crect x=\"64\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"75\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">C\u003c/text>\u003ctext x=\"75\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">3\u003c/text>\u003crect x=\"88\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"99\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">D\u003c/text>\u003ctext x=\"99\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">4\u003c/text>\u003crect x=\"112\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#efe2ff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"123\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">E\u003c/text>\u003ctext x=\"123\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">5\u003c/text>\u003crect x=\"136\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"147\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">F\u003c/text>\u003ctext x=\"147\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">6\u003c/text>\u003crect x=\"160\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"171\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">G\u003c/text>\u003ctext x=\"171\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">7\u003c/text>\u003crect x=\"184\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"195\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">H\u003c/text>\u003ctext x=\"195\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">8\u003c/text>\u003crect x=\"208\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"219\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">I\u003c/text>\u003ctext x=\"219\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">9\u003c/text>\u003crect x=\"232\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"243\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">J\u003c/text>\u003ctext x=\"243\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">10\u003c/text>\u003crect x=\"256\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"267\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">K\u003c/text>\u003ctext x=\"267\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">11\u003c/text>\u003crect x=\"280\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"291\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">L\u003c/text>\u003ctext x=\"291\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">12\u003c/text>\u003crect x=\"304\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"315\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">M\u003c/text>\u003ctext x=\"315\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">13\u003c/text>\u003crect x=\"328\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"339\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">N\u003c/text>\u003ctext x=\"339\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">14\u003c/text>\u003crect x=\"352\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"363\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">O\u003c/text>\u003ctext x=\"363\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">15\u003c/text>\u003crect x=\"376\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"387\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">P\u003c/text>\u003ctext x=\"387\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">16\u003c/text>\u003crect x=\"400\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"411\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">Q\u003c/text>\u003ctext x=\"411\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">17\u003c/text>\u003crect x=\"424\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#efe2ff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"435\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">R\u003c/text>\u003ctext x=\"435\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">18\u003c/text>\u003crect x=\"448\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"459\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">S\u003c/text>\u003ctext x=\"459\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">19\u003c/text>\u003crect x=\"472\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#efe2ff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"483\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">T\u003c/text>\u003ctext x=\"483\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">20\u003c/text>\u003crect x=\"496\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"507\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">U\u003c/text>\u003ctext x=\"507\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">21\u003c/text>\u003crect x=\"520\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"531\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">V\u003c/text>\u003ctext x=\"531\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">22\u003c/text>\u003crect x=\"544\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"555\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">W\u003c/text>\u003ctext x=\"555\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">23\u003c/text>\u003crect x=\"568\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"579\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">X\u003c/text>\u003ctext x=\"579\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">24\u003c/text>\u003crect x=\"592\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"603\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">Y\u003c/text>\u003ctext x=\"603\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">25\u003c/text>\u003crect x=\"616\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"627\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">Z\u003c/text>\u003ctext x=\"627\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">26\u003c/text>\u003c/svg>\u003c/div>","choices":[{"value":"TREE","label":"TREE"},{"value":"VTGG","label":"VTGG"},{"value":"USFF","label":"USFF"},{"value":"SQDD","label":"SQDD"}],"id":"preview-codes-2"},{"topic":"codes","title":"Reverse alphabet code","difficulty":3,"kind":"mc","prompt":"In a reverse alphabet code, A↔Z, B↔Y, C↔X and so on. What is the code for CAT?","answer":"XZG","hint":"Pair the first letter of the alphabet with the last, the second with the second-last, and so on.","explanation":"CAT becomes XZG in the reverse alphabet code.","choices":[{"value":"DBU","label":"DBU"},{"value":"XZG","label":"XZG"},{"value":"BZS","label":"BZS"},{"value":"TAC","label":"TAC"}],"id":"preview-codes-3"},{"topic":"codes","title":"Word value","difficulty":3,"kind":"mc","prompt":"A=1, B=2, C=3 and so on. What is the value of SHIP?","answer":"52","hint":"Add the alphabet positions of each letter.","explanation":"S=19, H=8, I=9, P=16, so the total is 52.","stimulus":"\u003cdiv class=\"diagram alphabet-diagram\">\u003csvg viewBox=\"0 0 650 110\" role=\"img\" aria-label=\"Alphabet strip\">\u003crect x=\"16\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"27\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">A\u003c/text>\u003ctext x=\"27\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">1\u003c/text>\u003crect x=\"40\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"51\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">B\u003c/text>\u003ctext x=\"51\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">2\u003c/text>\u003crect x=\"64\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"75\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">C\u003c/text>\u003ctext x=\"75\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">3\u003c/text>\u003crect x=\"88\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"99\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">D\u003c/text>\u003ctext x=\"99\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">4\u003c/text>\u003crect x=\"112\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"123\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">E\u003c/text>\u003ctext x=\"123\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">5\u003c/text>\u003crect x=\"136\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"147\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">F\u003c/text>\u003ctext x=\"147\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">6\u003c/text>\u003crect x=\"160\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"171\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">G\u003c/text>\u003ctext x=\"171\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">7\u003c/text>\u003crect x=\"184\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#efe2ff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"195\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">H\u003c/text>\u003ctext x=\"195\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">8\u003c/text>\u003crect x=\"208\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#efe2ff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"219\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">I\u003c/text>\u003ctext x=\"219\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">9\u003c/text>\u003crect x=\"232\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"243\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">J\u003c/text>\u003ctext x=\"243\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">10\u003c/text>\u003crect x=\"256\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"267\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">K\u003c/text>\u003ctext x=\"267\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">11\u003c/text>\u003crect x=\"280\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"291\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">L\u003c/text>\u003ctext x=\"291\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">12\u003c/text>\u003crect x=\"304\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"315\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">M\u003c/text>\u003ctext x=\"315\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">13\u003c/text>\u003crect x=\"328\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"339\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">N\u003c/text>\u003ctext x=\"339\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">14\u003c/text>\u003crect x=\"352\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"363\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">O\u003c/text>\u003ctext x=\"363\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">15\u003c/text>\u003crect x=\"376\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#efe2ff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"387\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">P\u003c/text>\u003ctext x=\"387\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">16\u003c/text>\u003crect x=\"400\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"411\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">Q\u003c/text>\u003ctext x=\"411\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">17\u003c/text>\u003crect x=\"424\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"435\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">R\u003c/text>\u003ctext x=\"435\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">18\u003c/text>\u003crect x=\"448\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#efe2ff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"459\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">S\u003c/text>\u003ctext x=\"459\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">19\u003c/text>\u003crect x=\"472\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"483\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">T\u003c/text>\u003ctext x=\"483\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">20\u003c/text>\u003crect x=\"496\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"507\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">U\u003c/text>\u003ctext x=\"507\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">21\u003c/text>\u003crect x=\"520\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"531\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">V\u003c/text>\u003ctext x=\"531\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">22\u003c/text>\u003crect x=\"544\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"555\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">W\u003c/text>\u003ctext x=\"555\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">23\u003c/text>\u003crect x=\"568\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"579\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">X\u003c/text>\u003ctext x=\"579\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">24\u003c/text>\u003crect x=\"592\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"603\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">Y\u003c/text>\u003ctext x=\"603\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">25\u003c/text>\u003crect x=\"616\" y=\"38\" width=\"22\" height=\"28\" rx=\"5\" fill=\"#ffffff\" stroke=\"#16324f\" stroke-width=\"1.2\"/>\u003ctext x=\"627\" y=\"57\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"13\" font-weight=\"900\" fill=\"#17314f\">Z\u003c/text>\u003ctext x=\"627\" y=\"83\" text-anchor=\"middle\" font-family=\"Trebuchet MS, Arial\" font-size=\"10\" font-weight=\"700\" fill=\"#5a6c82\">26\u003c/text>\u003c/svg>\u003c/div>","choices":[{"value":"52","label":"52"},{"value":"71","label":"71"},{"value":"53","label":"53"},{"value":"51","label":"51"}],"id":"preview-codes-4"},{"topic":"codes","title":"Two-letter code table","difficulty":3,"kind":"mc","prompt":"The code uses the first and last letter of each word. What is the code for the target word?","answer":"TE","hint":"Take the first letter and the last letter of the word.","explanation":"tree starts with T and ends with E, so the code is TE.","stimulus":"\u003cdiv class=\"code-table\">\u003ctable>\u003cthead>\u003ctr>\u003cth>Word\u003c/th>\u003cth>Code\u003c/th>\u003c/tr>\u003c/thead>\u003ctbody>\u003ctr>\u003ctd>cat\u003c/td>\u003ctd>CT\u003c/td>\u003c/tr>\u003ctr>\u003ctd>tree\u003c/td>\u003ctd>?\u003c/td>\u003c/tr>\u003ctr>\u003ctd>school\u003c/td>\u003ctd>SL\u003c/td>\u003c/tr>\u003ctr>\u003ctd>pencil\u003c/td>\u003ctd>PL\u003c/td>\u003c/tr>\u003c/tbody>\u003c/table>\u003c/div>","choices":[{"value":"RE","label":"RE"},{"value":"TR","label":"TR"},{"value":"TE","label":"TE"},{"value":"EE","label":"EE"}],"id":"preview-codes-5"}],"sequences":[{"topic":"sequences","title":"Simple letter sequences","difficulty":3,"kind":"mc","prompt":"What is the next letter in the sequence?","answer":"Z","hint":"The letters move forwards by 4 each time.","explanation":"The next letter is Z.","stimulus":"\u003cdiv class=\"sequence-strip\">\u003cspan class=\"seq-token\">F\u003c/span>\u003cspan>→\u003c/span>\u003cspan class=\"seq-token\">J\u003c/span>\u003cspan>→\u003c/span>\u003cspan class=\"seq-token\">N\u003c/span>\u003cspan>→\u003c/span>\u003cspan class=\"seq-token\">R\u003c/span>\u003cspan>→\u003c/span>\u003cspan class=\"seq-token\">V\u003c/span>\u003cspan>→\u003c/span>\u003cspan class=\"seq-token\">?\u003c/span>\u003c/div>","choices":[{"value":"X","label":"X"},{"value":"W","label":"W"},{"value":"Z","label":"Z"},{"value":"Y","label":"Y"}],"id":"preview-sequences-1"},{"topic":"sequences","title":"Backward letter sequences","difficulty":3,"kind":"mc","prompt":"What is the next letter in the sequence?","answer":"F","hint":"The letters move backwards by 3 each time.","explanation":"The next letter is F.","stimulus":"\u003cdiv class=\"sequence-strip\">\u003cspan class=\"seq-token\">U\u003c/span>\u003cspan>→\u003c/span>\u003cspan class=\"seq-token\">R\u003c/span>\u003cspan>→\u003c/span>\u003cspan class=\"seq-token\">O\u003c/span>\u003cspan>→\u003c/span>\u003cspan class=\"seq-token\">L\u003c/span>\u003cspan>→\u003c/span>\u003cspan class=\"seq-token\">I\u003c/span>\u003cspan>→\u003c/span>\u003cspan class=\"seq-token\">?\u003c/span>\u003c/div>","choices":[{"value":"C","label":"C"},{"value":"F","label":"F"},{"value":"D","label":"D"},{"value":"E","label":"E"}],"id":"preview-sequences-2"},{"topic":"sequences","title":"Alternating letter sequences","difficulty":3,"kind":"mc","prompt":"What is the next letter in this alternating sequence?","answer":"F","hint":"Look at the 1st, 3rd, 5th letters separately from the 2nd, 4th, 6th letters.","explanation":"The odd-positioned letters continue to F.","stimulus":"\u003cdiv class=\"sequence-strip\">\u003cspan class=\"seq-token\">C\u003c/span>\u003cspan>→\u003c/span>\u003cspan class=\"seq-token\">N\u003c/span>\u003cspan>→\u003c/span>\u003cspan class=\"seq-token\">D\u003c/span>\u003cspan>→\u003c/span>\u003cspan class=\"seq-token\">O\u003c/span>\u003cspan>→\u003c/span>\u003cspan class=\"seq-token\">E\u003c/span>\u003cspan>→\u003c/span>\u003cspan class=\"seq-token\">P\u003c/span>\u003cspan>→\u003c/span>\u003cspan class=\"seq-token\">?\u003c/span>\u003c/div>","choices":[{"value":"D","label":"D"},{"value":"C","label":"C"},{"value":"F","label":"F"},{"value":"E","label":"E"}],"id":"preview-sequences-3"},{"topic":"sequences","title":"Number-letter sequences","difficulty":3,"kind":"mc","prompt":"What comes next?","answer":"L12","hint":"The letter and number both follow the alphabet position.","explanation":"The next item is L12.","stimulus":"\u003cdiv class=\"sequence-strip\">\u003cspan class=\"seq-token\">D4\u003c/span>\u003cspan>→\u003c/span>\u003cspan class=\"seq-token\">F6\u003c/span>\u003cspan>→\u003c/span>\u003cspan class=\"seq-token\">H8\u003c/span>\u003cspan>→\u003c/span>\u003cspan class=\"seq-token\">J10\u003c/span>\u003cspan>→\u003c/span>\u003cspan class=\"seq-token\">?\u003c/span>\u003c/div>","choices":[{"value":"N14","label":"N14"},{"value":"K12","label":"K12"},{"value":"L13","label":"L13"},{"value":"L12","label":"L12"}],"id":"preview-sequences-4"},{"topic":"sequences","title":"Order letters alphabetically","difficulty":3,"kind":"order","prompt":"Click the letters in alphabetical order.","answer":["C","S","X","Y"],"hint":"Use A, B, C order.","explanation":"Alphabetical order is C, S, X, Y.","tiles":["Y","C","S","X"],"stimulus":"\u003cdiv class=\"word-bank\">\u003cspan class=\"word-token\">X\u003c/span>\u003cspan class=\"word-token\">Y\u003c/span>\u003cspan class=\"word-token\">S\u003c/span>\u003cspan class=\"word-token\">C\u003c/span>\u003c/div>","id":"preview-sequences-5"}],"wordplay":[{"topic":"wordplay","title":"Anagrams","difficulty":3,"kind":"mc","prompt":"Which word can be made from these letters?","answer":"danger","hint":"Rearrange every letter exactly once.","explanation":"GDAENR can be rearranged to make danger.","stimulus":"\u003cdiv class=\"word-bank\">\u003cspan class=\"word-token\">G\u003c/span>\u003cspan class=\"word-token\">D\u003c/span>\u003cspan class=\"word-token\">A\u003c/span>\u003cspan class=\"word-token\">E\u003c/span>\u003cspan class=\"word-token\">N\u003c/span>\u003cspan class=\"word-token\">R\u003c/span>\u003c/div>","choices":[{"value":"danger","label":"danger"},{"value":"planet","label":"planet"},{"value":"silent","label":"silent"},{"value":"castle","label":"castle"}],"id":"preview-wordplay-1"},{"topic":"wordplay","title":"Hidden word inside","difficulty":3,"kind":"mc","prompt":"Which word is hidden inside garden?","answer":"den","hint":"Look for consecutive letters inside the longer word.","explanation":"den appears inside garden.","stimulus":"\u003cdiv class=\"vr-card\">\u003cstrong>garden\u003c/strong>\u003c/div>","choices":[{"value":"ark","label":"ark"},{"value":"den","label":"den"},{"value":"tea","label":"tea"},{"value":"win","label":"win"}],"id":"preview-wordplay-2"},{"topic":"wordplay","title":"Hidden word across words","difficulty":3,"kind":"mc","prompt":"Which word is hidden across two neighbouring words in the sentence?","answer":"mate","hint":"Look at the end of one word and the start of the next word.","explanation":"mate is hidden across two neighbouring words.","stimulus":"\u003cdiv class=\"vr-card\">The team ate early.\u003c/div>","choices":[{"value":"mint","label":"mint"},{"value":"moth","label":"moth"},{"value":"malt","label":"malt"},{"value":"mate","label":"mate"}],"id":"preview-wordplay-3"},{"topic":"wordplay","title":"Remove a letter","difficulty":3,"kind":"mc","prompt":"Remove one letter from chair to make a new word. Which word can you make?","answer":"hair","hint":"The remaining letters must stay in the same order.","explanation":"Removing one letter from chair can make hair.","choices":[{"value":"hair","label":"hair"},{"value":"pear","label":"pear"},{"value":"rave","label":"rave"},{"value":"lane","label":"lane"}],"id":"preview-wordplay-4"},{"topic":"wordplay","title":"Match anagrams","difficulty":3,"kind":"match","prompt":"Match each word to its anagram.","answer":{"alert":"later","secure":"rescue","react":"trace","least":"stale"},"hint":"An anagram uses exactly the same letters in a different order.","explanation":"Each pair uses the same letters.","pairs":[{"left":"alert","right":"later"},{"left":"secure","right":"rescue"},{"left":"react","right":"trace"},{"left":"least","right":"stale"}],"options":["later","stale","trace","rescue"],"id":"preview-wordplay-5"}],"logic":[{"topic":"logic","title":"Order clues","difficulty":3,"kind":"mc","prompt":"Read the clues. Who is highest?","answer":"Asha","hint":"Put the names in order from the clues.","explanation":"Asha comes before Evie, and Evie comes before Finn, so Asha is highest.","stimulus":"\u003cdiv class=\"vr-card\">Asha is higher than Evie.\u003cbr>Evie is higher than Finn.\u003c/div>","choices":[{"value":"Evie","label":"Evie"},{"value":"Asha","label":"Asha"},{"value":"cannot tell","label":"cannot tell"},{"value":"Finn","label":"Finn"}],"id":"preview-logic-1"},{"topic":"logic","title":"Simple conclusions","difficulty":3,"kind":"mc","prompt":"What must be true?","answer":"This animal is not a reptile.","hint":"Only choose what must follow from the statements.","explanation":"This animal is not a reptile follows from the statements.","stimulus":"\u003cdiv class=\"vr-card\">No reptiles have fur.\u003cbr>This animal has fur.\u003c/div>","choices":[{"value":"No animals have fur.","label":"No animals have fur."},{"value":"This animal is not a reptile.","label":"This animal is not a reptile."},{"value":"All furry animals are mammals.","label":"All furry animals are mammals."},{"value":"This animal is a reptile.","label":"This animal is a reptile."}],"id":"preview-logic-2"},{"topic":"logic","title":"Matching deduction","difficulty":3,"kind":"match","prompt":"Match each pupil to the correct pet.","answer":{"Freya":"fish","Bella":"dog","Daisy":"hamster"},"hint":"Use the direct clue first, then eliminate impossible pets.","explanation":"Freya has the fish; Bella has the dog; Daisy has the hamster.","stimulus":"\u003cdiv class=\"vr-card\">Freya has the fish.\u003cbr>Bella does not have the fish or the hamster.\u003cbr>Daisy has the remaining pet.\u003c/div>","pairs":[{"left":"Freya","right":"fish"},{"left":"Bella","right":"dog"},{"left":"Daisy","right":"hamster"}],"options":["fish","dog","hamster"],"id":"preview-logic-3"},{"topic":"logic","title":"Select two true statements","difficulty":3,"kind":"multi","prompt":"Choose the two statements that are true.","answer":["Maple has more points than Cedar.","Oak has fewer points than Beech."],"hint":"Use the table to check each statement.","explanation":"The true statements are: Maple has more points than Cedar. Oak has fewer points than Beech.","stimulus":"\u003cdiv class=\"code-table\">\u003ctable>\u003cthead>\u003ctr>\u003cth>House\u003c/th>\u003cth>Points\u003c/th>\u003c/tr>\u003c/thead>\u003ctbody>\u003ctr>\u003ctd>Oak\u003c/td>\u003ctd>11\u003c/td>\u003c/tr>\u003ctr>\u003ctd>Beech\u003c/td>\u003ctd>27\u003c/td>\u003c/tr>\u003ctr>\u003ctd>Cedar\u003c/td>\u003ctd>33\u003c/td>\u003c/tr>\u003ctr>\u003ctd>Maple\u003c/td>\u003ctd>50\u003c/td>\u003c/tr>\u003c/tbody>\u003c/table>\u003c/div>","choices":[{"value":"Beech has the most points.","label":"Beech has the most points."},{"value":"Oak has fewer points than Beech.","label":"Oak has fewer points than Beech."},{"value":"Cedar has fewer points than Oak.","label":"Cedar has fewer points than Oak."},{"value":"Maple has more points than Cedar.","label":"Maple has more points than Cedar."}],"selectCount":2,"id":"preview-logic-4"},{"topic":"logic","title":"Order the clues","difficulty":3,"kind":"order","prompt":"Put the books in order from left to right.","answer":["Red","Blue","Green"],"hint":"Use each comparison to build one complete order.","explanation":"The correct order is Red → Blue → Green.","stimulus":"\u003cdiv class=\"vr-card\">The red book is left of the blue book.\u003cbr>The green book is right of the blue book.\u003c/div>","tiles":["Blue","Red","Green"],"id":"preview-logic-5"}],"mixed":[{"topic":"vocab","title":"Idioms and phrases","difficulty":3,"kind":"mc","prompt":"What does the phrase in the sentence mean?","answer":"listening carefully","hint":"An idiom usually does not mean exactly what the words say literally.","explanation":"The phrase means listening carefully.","stimulus":"\u003cdiv class=\"vr-card\">The class was all ears when the visitor arrived.\u003c/div>","choices":[{"value":"running quickly","label":"running quickly"},{"value":"listening carefully","label":"listening carefully"},{"value":"talking loudly","label":"talking loudly"},{"value":"feeling sleepy","label":"feeling sleepy"}],"id":"preview-mixed-1"},{"topic":"analogies","title":"Worker and tool analogies","difficulty":3,"kind":"mc","prompt":"painter is to brush as writer is to _____.","answer":"pen","hint":"The first person commonly uses the second object.","explanation":"A painter uses a brush; a writer uses a pen.","choices":[{"value":"ink","label":"ink"},{"value":"pen","label":"pen"},{"value":"page","label":"page"},{"value":"story","label":"story"}],"id":"preview-mixed-2"},{"topic":"compounds","title":"Choose two compound endings","difficulty":3,"kind":"multi","prompt":"Choose two words that can go after book to make compound words.","answer":["shelf","case"],"hint":"There are two words that make familiar compounds beginning with book.","explanation":"bookshelf and bookcase are compound words.","choices":[{"value":"coat","label":"coat"},{"value":"shelf","label":"shelf"},{"value":"case","label":"case"},{"value":"note","label":"note"},{"value":"door","label":"door"}],"selectCount":2,"stimulus":"\u003cdiv class=\"word-bank\">\u003cspan class=\"word-token\">note\u003c/span>\u003cspan class=\"word-token\">shelf\u003c/span>\u003cspan class=\"word-token\">coat\u003c/span>\u003cspan class=\"word-token\">case\u003c/span>\u003cspan class=\"word-token\">door\u003c/span>\u003c/div>","id":"preview-mixed-3"},{"topic":"wordplay","title":"Order an anagram","difficulty":3,"kind":"order","prompt":"Rearrange the tiles to make a word meaning “a condition or situation”.","answer":["S","T","A","T","E"],"hint":"Use every letter exactly once and use the definition to identify the word.","explanation":"The correct order spells state, meaning a condition or situation.","tiles":["T","S","E","A","T"],"stimulus":"\u003cdiv class=\"word-bank\">\u003cspan class=\"word-token\">T\u003c/span>\u003cspan class=\"word-token\">S\u003c/span>\u003cspan class=\"word-token\">E\u003c/span>\u003cspan class=\"word-token\">A\u003c/span>\u003cspan class=\"word-token\">T\u003c/span>\u003c/div>","id":"preview-mixed-4"},{"topic":"logic","title":"Final matching table","difficulty":3,"kind":"match","prompt":"Use the table to match each pupil to a club.","answer":{"Dylan":"art","Ben":"chess","Cara":"coding"},"hint":"Each clue gives one exact match.","explanation":"The matches are Dylan → art; Ben → chess; Cara → coding.","pairs":[{"left":"Dylan","right":"art"},{"left":"Ben","right":"chess"},{"left":"Cara","right":"coding"}],"options":["chess","coding","art"],"stimulus":"\u003cdiv class=\"code-table\">\u003ctable>\u003cthead>\u003ctr>\u003cth>Pupil\u003c/th>\u003cth>Clue\u003c/th>\u003c/tr>\u003c/thead>\u003ctbody>\u003ctr>\u003ctd>Dylan\u003c/td>\u003ctd>Dylan chose art.\u003c/td>\u003c/tr>\u003ctr>\u003ctd>Ben\u003c/td>\u003ctd>Ben chose chess.\u003c/td>\u003c/tr>\u003ctr>\u003ctd>Cara\u003c/td>\u003ctd>Cara chose coding.\u003c/td>\u003c/tr>\u003c/tbody>\u003c/table>\u003c/div>","id":"preview-mixed-5"}]};
+
+function freeze(value) { if (value && typeof value === 'object') { Object.values(value).forEach(freeze); Object.freeze(value); } return value; }
+freeze(STATIC_SAMPLES);
+const freshStats = () => ({ total:0, correct:0, assisted:0, pointsEarned:0, pointsPossible:0 });
+const progress = { topics:Object.fromEntries(ACTIVE_TOPICS.map(id=>[id,freshStats()])), lifetime:freshStats() };
+let state = {topic:null,currentQuestion:null,index:0,length:SAMPLE_LENGTH,history:[],answered:false};
+function renderHome() {
+  els.practiceIntro.classList.remove('hidden'); els.storageStatus.textContent='';
+  els.homeToolbar.classList.remove('hidden'); els.homeScreen.classList.remove('hidden');
+  els.quizScreen.classList.add('hidden'); els.resultsScreen.classList.add('hidden');
+  els.topicGrid.innerHTML=Object.entries(TOPICS).map(([id,t])=>{
+    const p=id==='mixed'?progress.lifetime:progress.topics[id];
+    const accuracy=p.total?Math.round(100*p.correct/p.total):0;
+    return `<button class="topic-card" data-topic="${id}" type="button" aria-label="${escapeHtml(t.name)}. Five fixed sample activities.">
+      <span class="topic-main"><span class="topic-icon" aria-hidden="true">${t.icon}</span><span class="topic-name">${escapeHtml(t.name)}</span><span class="topic-blurb">${escapeHtml(t.blurb)}</span></span>
+      <span class="mini-stats"><span>5 sample activities</span><span>Accuracy ${accuracy}%</span><span>Attempted ${p.total}</span>${p.assisted?`<span>Assisted ${p.assisted}</span>`:''}</span>
+    </button>`;
+  }).join('');
+  els.topicGrid.querySelectorAll('.topic-card').forEach(btn=>btn.addEventListener('click',()=>startRound(btn.dataset.topic)));
+}
+function startRound(topic) {
+  if(!Object.prototype.hasOwnProperty.call(STATIC_SAMPLES,topic))return;
+  state={topic,currentQuestion:null,index:0,length:SAMPLE_LENGTH,score:0,pointsEarned:0,pointsPossible:0,assistedCount:0,answered:false,history:[],mcSelected:null,multiSelected:new Set(),orderSelected:[],hintUsed:false};
+  els.practiceIntro.classList.add('hidden');els.homeToolbar.classList.add('hidden');els.homeScreen.classList.add('hidden');els.resultsScreen.classList.add('hidden');els.quizScreen.classList.remove('hidden');
+  nextQuestion();
+}
+function nextQuestion() {
+  if(state.currentQuestion&&!state.answered)return;
+  if(state.index>=SAMPLE_LENGTH)return showResults();
+  state.currentQuestion=STATIC_SAMPLES[state.topic][state.index];
+  state.answered=false;state.multiSelected=new Set();state.orderSelected=[];state.mcSelected=null;state.hintUsed=false;
+  renderQuestion();
+}
+function applyProgress(topic,result,assisted,awarded) {
+  [progress.topics[topic],progress.lifetime].forEach(p=>{
+    p.total++;p.pointsEarned+=awarded;p.pointsPossible+=result.max;
+    if(result.fullyCorrect)p.correct++;
+    if(assisted)p.assisted++;
+  });
+}
+const dialog=document.getElementById('previewDialog');
+const dialogTitle=document.getElementById('previewDialogTitle');
+const dialogText=document.getElementById('previewDialogText');
+const dialogOk=document.getElementById('previewDialogOk');
+const dialogCancel=document.getElementById('previewDialogCancel');
+let dialogAction=null, returnFocus=null;
+function openDialog(title,text,action=null,label='Continue preview') {
+  if(dialog.open)return;
+  returnFocus=document.activeElement;dialogAction=action;dialogTitle.textContent=title;dialogText.textContent=text;
+  dialogOk.textContent=label;dialogCancel.classList.toggle('hidden',!action);
+  dialog.showModal();(action?dialogCancel:dialogOk).focus();
+}
+function unavailable(feature) { openDialog('Preview only',`${feature} is available in the full version, not in this preview. You can explore the five fixed sample activities in each section.`); }
+function closeDialog(accept) {
+  const action=accept?dialogAction:null;dialogAction=null;dialog.close();
+  const target=returnFocus;returnFocus=null;
+  if(target&&target.isConnected)target.focus({preventScroll:true});
+  if(action)action();
+}
+dialogOk.addEventListener('click',()=>closeDialog(true));
+dialogCancel.addEventListener('click',()=>closeDialog(false));
+dialog.addEventListener('cancel',e=>{e.preventDefault();closeDialog(false);});
+dialog.addEventListener('click',e=>{if(e.target!==dialog)return;const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closeDialog(false);});
+function goHome() {
+  state.currentQuestion=null;renderHome();document.getElementById('homeHeading').focus({preventScroll:true});window.scrollTo({top:0,behavior:'auto'});
+}
+function leaveRound() {
+  openDialog('Leave this sample?','This will end the current sample. No progress is saved after the page closes. Reopening this topic starts the same five questions again.',goHome,'Choose topic');
+}
+els.hintBtn.addEventListener('click',showHint);
+els.nextBtn.addEventListener('click',nextQuestion);
+els.backBtn.addEventListener('click',leaveRound);
+els.homeBtn.addEventListener('click',goHome);
+els.playAgainBtn.addEventListener('click',()=>startRound(state.topic||'mixed'));
+els.resetProgressBtn.classList.add('preview-locked');els.resetProgressBtn.setAttribute('aria-disabled','true');els.resetProgressBtn.title='Full version only';
+els.resetProgressBtn.addEventListener('click',()=>unavailable('Saved progress management'));
+els.retryMissedBtn.classList.add('preview-locked');els.retryMissedBtn.setAttribute('aria-disabled','true');els.retryMissedBtn.title='Full version only';
+const lengthShell=els.sessionLength.closest('label');
+els.sessionLength.value='5';els.sessionLength.style.pointerEvents='none';
+lengthShell.classList.add('preview-control');lengthShell.setAttribute('role','button');lengthShell.tabIndex=0;lengthShell.setAttribute('aria-label','Five-question preview. Longer rounds are available in the full version.');
+lengthShell.addEventListener('click',e=>{e.preventDefault();lengthShell.focus({preventScroll:true});unavailable('Longer practice rounds');});
+lengthShell.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();unavailable('Longer practice rounds');}});
+els.sessionLength.addEventListener('change',()=>{els.sessionLength.value='5';unavailable('Longer practice rounds');});
+els.reviewWrap.tabIndex=0;els.reviewWrap.setAttribute('role','region');els.reviewWrap.setAttribute('aria-label','Sample results table. Scroll horizontally to read every column.');
+// Casual page-level shortcut deterrents; browser-owned controls are outside the page.
+document.addEventListener('contextmenu',e=>e.preventDefault(),true);
+document.addEventListener('keydown',e=>{
+  const k=e.key.toLowerCase(),command=e.ctrlKey||e.metaKey;
+  const sourceAction=k==='f12'||k==='contextmenu'||(e.shiftKey&&k==='f10')||(command&&['u','s'].includes(k))||(e.ctrlKey&&e.shiftKey&&['i','j','c','k','e'].includes(k))||(e.metaKey&&e.altKey&&['i','j','c','u'].includes(k));
+  if(command&&k==='p'){e.preventDefault();e.stopImmediatePropagation();unavailable('Printing and PDF reports');}
+  else if(sourceAction){e.preventDefault();e.stopImmediatePropagation();openDialog('Preview only','This action is disabled in this preview. Please use the sample controls to explore the product.');}
+},true);
+window.print=()=>unavailable('Printing and PDF reports');
+renderHome();
+})();
+
+</script>
+</body>
+</html>
